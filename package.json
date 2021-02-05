@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "version": "update-changelog && git add CHANGELOG.md"
   },
   "repository": {
     "type": "git",
@@ -16,5 +17,8 @@
   "bugs": {
     "url": "https://gitlab.com/trungnq89/nodejs-api/issues"
   },
-  "homepage": "https://gitlab.com/trungnq89/nodejs-api#readme"
+  "homepage": "https://gitlab.com/trungnq89/nodejs-api#readme",
+  "devDependencies": {
+    "update-changelog": "^1.0.2"
+  }
 }
