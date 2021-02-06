@@ -1,0 +1,24 @@
+{
+  "name": "nodejs-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "version": "update-changelog && git add CHANGELOG.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/trungnq89/nodejs-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/trungnq89/nodejs-api/issues"
+  },
+  "homepage": "https://gitlab.com/trungnq89/nodejs-api#readme",
+  "devDependencies": {
+    "update-changelog": "^1.0.2"
+  }
+}
