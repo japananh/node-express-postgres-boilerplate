@@ -2,7 +2,7 @@
   "name": "nodejs-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "version": "update-changelog && git add CHANGELOG.md",
@@ -15,7 +15,19 @@
     "type": "git",
     "url": "git+ssh://git@gitlab.com/trungnq89/nodejs-api.git"
   },
-  "keywords": [],
+  "keywords": [
+    "node", 
+    "node.js", 
+    "boilerplate",
+    "rest", 
+    "api", 
+    "express", 
+    "postgres", 
+    "joi", 
+    "eslint",
+    "prettier",
+    "es6"
+  ],
   "author": "",
   "license": "ISC",
   "bugs": {
@@ -23,7 +35,7 @@
   },
   "homepage": "https://gitlab.com/trungnq89/nodejs-api#readme",
   "engines": {
-    "node": ">=10.0"
+    "node": ">=12.0.0"
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",
@@ -41,6 +53,8 @@
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
     "pg": "^8.5.1",
+    "swagger-jsdoc": "^6.0.2",
+    "swagger-ui-express": "^4.1.6",
     "winston": "^3.3.3",
     "xss-clean": "^0.1.1",
     "yesql": "^5.0.0"

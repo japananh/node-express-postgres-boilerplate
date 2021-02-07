@@ -24,8 +24,7 @@ module.exports = router;
 
 /**
  * @swagger
- * path:
- *  /auth/register:
+ * /auth/register:
  *    post:
  *      summary: Register as user
  *      tags: [Auth]
@@ -73,8 +72,7 @@ module.exports = router;
 
 /**
  * @swagger
- * path:
- *  /auth/login:
+ * auth/login:
  *    post:
  *      summary: Login
  *      tags: [Auth]
@@ -122,8 +120,7 @@ module.exports = router;
 
 /**
  * @swagger
- * path:
- *  /auth/logout:
+ * auth/logout:
  *    post:
  *      summary: Logout
  *      tags: [Auth]

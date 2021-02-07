@@ -40,8 +40,7 @@ module.exports = router;
 
 /**
  * @swagger
- * path:
- *  /users:
+ * /users:
  *    post:
  *      summary: Create a user
  *      description: Only admins can create other users.
@@ -105,7 +104,7 @@ module.exports = router;
  *          schema:
  *            type: string
  *          description: User name
- * 		  - in: query
+ *        - in: query
  *          name: email
  *          schema:
  *            type: string
@@ -166,8 +165,7 @@ module.exports = router;
 
 /**
  * @swagger
- * path:
- *  /users/{id}:
+ * /users/{id}:
  *    get:
  *      summary: Get a user
  *      description: Logged in users can fetch only their own user information. Only admins can fetch other users.
