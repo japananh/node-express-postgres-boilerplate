@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "version": "update-changelog && git add CHANGELOG.md"
+    "version": "update-changelog && git add CHANGELOG.md",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prettier": "prettier --check **/*.js",
+    "dev": "cross-env NODE_ENV=development nodemon src/index.js"
   },
   "repository": {
     "type": "git",
@@ -18,16 +22,35 @@
     "url": "https://gitlab.com/trungnq89/nodejs-api/issues"
   },
   "homepage": "https://gitlab.com/trungnq89/nodejs-api#readme",
+  "engines": {
+    "node": ">=10.0"
+  },
   "dependencies": {
     "@hapi/joi": "^17.1.1",
+    "bcrypt": "^5.0.0",
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "http-status": "^1.5.0"
+    "express-jwt": "^6.0.0",
+    "express-rate-limit": "^5.2.3",
+    "helmet": "^4.4.1",
+    "http-status": "^1.5.0",
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0",
+    "pg": "^8.5.1",
+    "winston": "^3.3.3",
+    "xss-clean": "^0.1.1",
+    "yesql": "^5.0.0"
   },
   "devDependencies": {
     "eslint": "^7.19.0",
     "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^7.2.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prettier": "^3.3.1",
     "nodemon": "^2.0.7",
     "prettier": "^2.2.1",
     "update-changelog": "^1.0.2"
