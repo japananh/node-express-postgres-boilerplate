@@ -32,3 +32,7 @@ Running in production:
 ```bash
 yarn start
 ```
+
+### Documentation
+
+Swagger documentation generates at: http://localhost:<config.port>/v1/docs
