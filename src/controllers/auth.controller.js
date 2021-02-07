@@ -10,16 +10,14 @@ const register = catchAsync(async (req, res) => {
 
 const login = catchAsync(async (req, res) => {
 	const user = await authService.loginUserWithEmailAndPassword(req, req.body);
-
 	// Set httpOnly cookie, default expires = 24 hours
 	setCookie(res, 'token', { id: user.id, role: user.role });
-
 	res.send({ user });
 });
 
 const logout = catchAsync(async (req, res) => {
 	res.clearCookie('token');
-	res.status(httpStatus.NO_CONTENT).send();
+	res.send({ success: true });
 });
 
 module.exports = {

@@ -18,6 +18,7 @@ const envVarsSchema = Joi.object()
 		JWT_REFRESH_EXPIRATION_DAYS: Joi.number()
 			.default(30)
 			.description('days after which refresh tokens expire'),
+
 		SQL_USER: Joi.string().description('sqldb username'),
 		SQL_HOST: Joi.string().description('sqldb host'),
 		SQL_DATABASE_NAME: Joi.string().description('sqldb database name'),
@@ -36,6 +37,10 @@ if (error) {
 module.exports = {
 	env: envVars.NODE_ENV,
 	port: envVars.PORT,
+	pagination: {
+		limit: 10,
+		page: 1,
+	},
 	jwt: {
 		secret: envVars.JWT_SECRET,
 		accessExpirationMinutes: envVars.JWT_ACCESS_EXPIRATION_MINUTES,
