@@ -1,4 +1,4 @@
-# Nodejs Express base API 
+# Nodejs Express base API
 
 ** This is express base API buid with express**
 
@@ -102,8 +102,8 @@ Controllers should try to catch the errors and forward them to the error handlin
 const catchAsync = require('../utils/catchAsync');
 
 const controller = catchAsync(async (req, res) => {
-  // this error will be forwarded to the error handling middleware
-  throw new Error('Something wrong happened');
+	// this error will be forwarded to the error handling middleware
+	throw new Error('Something wrong happened');
 });
 ```
 
@@ -111,8 +111,8 @@ The error handling middleware sends an error response, which has the following f
 
 ```json
 {
-  "code": 404,
-  "message": "Not found"
+	"code": 404,
+	"message": "Not found"
 }
 ```
 
@@ -138,8 +138,9 @@ async function findOneUserById(req, id) {
 	return user.rows[0];
 }
 ```
+
 ```javascript
-// this function should be stored in utils folder
+// This function should be stored in src/utils folder
 async function generateQuery(req, query) {
 	const result = await req.postgres.query(query);
 	return result;
@@ -160,8 +161,53 @@ const userController = require('../../controllers/user.controller');
 
 const router = express.Router();
 
-router.post('/users', validate(userValidation.createUser), userController.createUser);
+router.post(
+	'/users',
+	validate(userValidation.createUser),
+	userController.createUser
+);
 ```
+
+## Authentication
+
+To require authentication for certain routes, you can use `jwt` function at `config` folder
+
+```javascript
+// app.js
+const jwt = require('./config/jwt');
+
+app.use(jwt());
+```
+
+These routes require a valid JWT access token in the Authorization request header using the Bearer schema. If the request does not contain a valid access token, an Unauthorized (401) error is thrown.
+
+## Authorization
+
+The `auth` middleware is used to require certain rights/permissions to access a route.
+
+```javascript
+const express = require('express');
+const { grantAccess } = require('../../middlewares/auth');
+const validate = require('../../middlewares/validate');
+const userValidation = require('../../validations/user.validation');
+const userController = require('../../controllers/user.controller');
+
+const router = express.Router();
+
+router
+	.route('/')
+	.get(
+		grantAccess('readAny', 'user'),
+		validate(userValidation.getUsers),
+		userController.getUsers
+	);
+```
+
+In the example above, an authenticated user can access this route only if that user has the `getUsers` permission.
+
+The permissions are role-based. You can view the permissions/rights of each role in the `src/config/roles.js` file.
+
+If the user making the request does not have the required permissions to access this route, a Forbidden (403) error is thrown.
 
 ## Logging
 
@@ -190,7 +236,7 @@ Note: API request information (request url, response code, timestamp, etc.) are 
 
 ## Inspirations
 
-- [hagopj13/node-express-boilerplate](https://github.com/hagopj13/node-express-boilerplate)
+-   [hagopj13/node-express-boilerplate](https://github.com/hagopj13/node-express-boilerplate)
 
 ## License
 
