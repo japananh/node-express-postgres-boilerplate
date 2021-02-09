@@ -5,7 +5,7 @@ const { encryptData } = require('../utils/auth');
 const config = require('../config/config.js');
 
 async function findOneUserByEmail(req, email) {
-	const query = `SELECT * FROM "user" WHERE email = '${email}' limit 1;`;
+	const query = `SELECT * FROM "users" WHERE email = '${email}' limit 1;`;
 	const user = await generateQuery(req, query);
 
 	if (!user || !user.rowCount) {
@@ -16,7 +16,7 @@ async function findOneUserByEmail(req, email) {
 }
 
 async function findOneUserById(req, id) {
-	const query = `SELECT * FROM "user" WHERE id = ${id} limit 1;`;
+	const query = `SELECT * FROM "users" WHERE id = ${id} limit 1;`;
 	const user = await generateQuery(req, query);
 
 	if (!user || !user.rowCount) {
@@ -28,7 +28,8 @@ async function findOneUserById(req, id) {
 
 async function createUser(req, { name, email, password }) {
 	const hashedPassword = await encryptData(password);
-	const query = `INSERT INTO "user" (name, email, password, role) VALUES ('${name}', '${email}', '${hashedPassword}', 'user') returning id;`;
+	const query = `INSERT INTO "users" (name, email, password, role) 
+		VALUES ('${name}', '${email}', '${hashedPassword}', 'user') returning id;`;
 	const user = await generateQuery(req, query);
 
 	if (!user || !user.rowCount) {
@@ -70,7 +71,7 @@ async function getUsers(req, queries) {
 	const offset = getOffset(page, limit);
 	const query = `
 		SELECT id, name, email, role, created_date_time, modified_date_time
-		FROM "user" WHERE ${conditions} limit ${limit} offset ${offset};`;
+		FROM "users" WHERE ${conditions} limit ${limit} offset ${offset};`;
 
 	const users = await generateQuery(req, query);
 	if (!users || !users.rowCount) {
@@ -91,7 +92,7 @@ async function deleteUserById(req, userId) {
 		throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
 	}
 
-	const query = `DELETE FROM "user" where id = '${userId}' returning id;`;
+	const query = `DELETE FROM "users" where id = '${userId}' returning id;`;
 	const deletedUser = await generateQuery(req, query);
 	if (!deletedUser || !deletedUser.rowCount) {
 		throw new ApiError(
@@ -123,7 +124,7 @@ async function updateUser(req, reqBody) {
 		}
 		set.push(`${key} = '${value}'`);
 	});
-	const query = `UPDATE "user" SET ${set.join(' , ')} WHERE id = '${
+	const query = `UPDATE "users" SET ${set.join(' , ')} WHERE id = '${
 		req.params.userId
 	}' RETURNING *;`;
 	const user = await generateQuery(req, query);
