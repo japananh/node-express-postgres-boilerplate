@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE IF NOT EXISTS public."user" (
+CREATE TABLE IF NOT EXISTS public."users" (
     "id" SERIAL NOT NULL,
     "name" varchar (25) NOT NULL,
     "email" varchar (50) UNIQUE NOT NULL,

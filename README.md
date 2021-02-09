@@ -128,7 +128,7 @@ const httpStatus = require('http-status');
 const ApiError = require('../utils/ApiError');
 
 async function findOneUserById(req, id) {
-	const query = `SELECT * FROM "user" WHERE id = ${id} limit 1;`;
+	const query = `SELECT * FROM "users" WHERE id = ${id} limit 1;`;
 	const user = await generateQuery(req, query);
 
 	if (!user || !user.rowCount) {
