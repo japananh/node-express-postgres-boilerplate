@@ -2,29 +2,32 @@ const express = require('express');
 const validate = require('../../middlewares/validate');
 const userValidation = require('../../validations/user.validation');
 const userController = require('../../controllers/user.controller');
+const { grantAccess } = require('../../middlewares/auth');
 
 const router = express.Router();
 
-router.route('/').get(
-	// TODO: add authorization middleware
-	validate(userValidation.getUsers),
-	userController.getUsers
-);
+router
+	.route('/')
+	.get(
+		grantAccess('readAny', 'user'),
+		validate(userValidation.getUsers),
+		userController.getUsers
+	);
 
 router
 	.route('/:userId')
 	.get(
-		// TODO: add authorization middleware
+		grantAccess('readAny', 'user'),
 		validate(userValidation.getUser),
 		userController.getUser
 	)
 	.patch(
-		// TODO: add authorization middleware
+		grantAccess('updateAny', 'user'),
 		validate(userValidation.updateUser),
 		userController.updateUser
 	)
 	.delete(
-		// TODO: add authorization middleware
+		grantAccess('deleteAny', 'user'),
 		validate(userValidation.deleteUser),
 		userController.deleteUser
 	);
