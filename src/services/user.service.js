@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-const { generateQuery, getOffset } = require('../helpers/query');
+const { generateQuery, getOffset } = require('../utils/query');
 const ApiError = require('../utils/ApiError');
 const { encryptData } = require('../utils/auth');
 const config = require('../config/config.js');
