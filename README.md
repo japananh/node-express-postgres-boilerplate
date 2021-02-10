@@ -241,3 +241,9 @@ Note: API request information (request url, response code, timestamp, etc.) are 
 ## License
 
 To be updated
+
+## TODOs
+
+- [ ] Update authentication flow to use refreshToken
+- [ ] Rewrite README using this sample [template](https://github.com/talyssonoc/node-api-boilerplate) 
+- [ ] Handle postgres with [Squelize](https://www.npmjs.com/package/sequelize)
