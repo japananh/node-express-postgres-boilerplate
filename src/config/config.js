@@ -19,10 +19,24 @@ const envVarsSchema = Joi.object()
 			.default(30)
 			.description('days after which refresh tokens expire'),
 
+		COOKIE_EXPIRATION_HOURS: Joi.number()
+			.default(24)
+			.description('hours after which httpOnly cookie expire'),
+
 		SQL_USER: Joi.string().description('sqldb username'),
 		SQL_HOST: Joi.string().description('sqldb host'),
 		SQL_DATABASE_NAME: Joi.string().description('sqldb database name'),
 		SQL_PASSWORD: Joi.string().description('sqldb password'),
+
+		SMTP_HOST: Joi.string().description('server that will send the emails'),
+		SMTP_PORT: Joi.number().description(
+			'port to connect to the email server'
+		),
+		SMTP_USERNAME: Joi.string().description('username for email server'),
+		SMTP_PASSWORD: Joi.string().description('password for email server'),
+		EMAIL_FROM: Joi.string().description(
+			'the from field in the emails sent by the app'
+		),
 	})
 	.unknown();
 
@@ -47,10 +61,24 @@ module.exports = {
 		refreshExpirationDays: envVars.JWT_REFRESH_EXPIRATION_DAYS,
 		resetPasswordExpirationMinutes: 10,
 	},
+	cookie: {
+		cookieExpirationHours: envVars,
+	},
 	sqlDB: {
 		user: envVars.SQL_USER,
 		host: envVars.SQL_HOST,
 		database: envVars.SQL_DATABASE_NAME,
 		password: envVars.SQL_PASSWORD,
+	},
+	email: {
+		smtp: {
+			host: envVars.SMTP_HOST,
+			port: envVars.SMTP_PORT,
+			auth: {
+				user: envVars.SMTP_USERNAME,
+				pass: envVars.SMTP_PASSWORD,
+			},
+		},
+		from: envVars.EMAIL_FROM,
 	},
 };

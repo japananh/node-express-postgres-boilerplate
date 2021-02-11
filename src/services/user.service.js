@@ -1,10 +1,10 @@
 const httpStatus = require('http-status');
 const { generateQuery, getOffset } = require('../utils/query');
 const ApiError = require('../utils/ApiError');
-const { encryptData } = require('../utils/auth');
+const tokenService = require('./token.service');
 const config = require('../config/config.js');
 
-async function findOneUserByEmail(req, email) {
+async function getUserByEmail(req, email) {
 	const query = `SELECT * FROM "users" WHERE email = '${email}' limit 1;`;
 	const user = await generateQuery(req, query);
 
@@ -15,7 +15,7 @@ async function findOneUserByEmail(req, email) {
 	return user.rows[0];
 }
 
-async function findOneUserById(req, id) {
+async function getUserById(req, id) {
 	const query = `SELECT * FROM "users" WHERE id = ${id} limit 1;`;
 	const user = await generateQuery(req, query);
 
@@ -27,7 +27,7 @@ async function findOneUserById(req, id) {
 }
 
 async function createUser(req, { name, email, password }) {
-	const hashedPassword = await encryptData(password);
+	const hashedPassword = await tokenService.encryptData(password);
 	const query = `INSERT INTO "users" (name, email, password, role) 
 		VALUES ('${name}', '${email}', '${hashedPassword}', 'user') returning id;`;
 	const user = await generateQuery(req, query);
@@ -87,7 +87,7 @@ async function deleteUserById(req, userId) {
 		throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
 	}
 
-	const user = await findOneUserById(req, userId);
+	const user = await getUserById(req, userId);
 	if (!user) {
 		throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
 	}
@@ -107,7 +107,7 @@ async function deleteUserById(req, userId) {
 async function updateUser(req, reqBody) {
 	let hashedPassword = '';
 	if (reqBody.password) {
-		hashedPassword = await encryptData(reqBody.password);
+		hashedPassword = await tokenService.encryptData(reqBody.password);
 	}
 	if (!hashedPassword) {
 		throw new ApiError(
@@ -125,7 +125,7 @@ async function updateUser(req, reqBody) {
 		set.push(`${key} = '${value}'`);
 	});
 	const query = `UPDATE "users" SET ${set.join(' , ')} WHERE id = '${
-		req.params.userId
+		req.params.userId || reqBody.id
 	}' RETURNING *;`;
 	const user = await generateQuery(req, query);
 
@@ -140,8 +140,8 @@ async function updateUser(req, reqBody) {
 }
 
 module.exports = {
-	findOneUserByEmail,
-	findOneUserById,
+	getUserByEmail,
+	getUserById,
 	createUser,
 	updateUser,
 	getUsers,
