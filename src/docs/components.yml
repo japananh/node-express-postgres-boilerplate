@@ -4,7 +4,7 @@ components:
             type: object
             properties:
                 id:
-                    type: string
+                    type: number
                 email:
                     type: string
                     format: email
@@ -13,11 +13,17 @@ components:
                 role:
                     type: string
                     enum: [user, admin]
+                created_date_time:
+                    type: date
+                modified_date_time:
+                    type: date
             example:
-                id: 5ebac534954b54139806c112
+                id: 1
                 email: fake@example.com
                 name: fake name
                 role: user
+                created_date_time: 2021-02-10T13:38:36.231Z
+                modified_date_time: 2021-02-10T13:38:36.231Z
 
         Token:
             type: object
@@ -46,8 +52,23 @@ components:
                     type: number
                 message:
                     type: string
+        
+        Success:
+            type: object
+            properties:
+                success:
+                    type: boolean
 
     responses:
+        Sucess:
+            description: OK
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/Success'
+                    example:
+                        code: 200
+                        message: OK
         DuplicateEmail:
             description: Email already taken
             content:

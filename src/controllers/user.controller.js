@@ -7,7 +7,7 @@ const getUsers = catchAsync(async (req, res) => {
 });
 
 const getUser = catchAsync(async (req, res) => {
-	const user = await userService.findOneUserById(req, req.params.userId);
+	const user = await userService.getUserById(req, req.params.userId);
 	delete user.password;
 	res.send({ user });
 });

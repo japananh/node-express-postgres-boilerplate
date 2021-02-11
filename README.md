@@ -127,7 +127,7 @@ For example, if you are trying to get a user from the DB who is not found, and y
 const httpStatus = require('http-status');
 const ApiError = require('../utils/ApiError');
 
-async function findOneUserById(req, id) {
+async function getUserById(req, id) {
 	const query = `SELECT * FROM "users" WHERE id = ${id} limit 1;`;
 	const user = await generateQuery(req, query);
 
@@ -244,7 +244,7 @@ To be updated
 
 ## TODOs
 
-- [ ] Update authentication flow to use refreshToken
-- [ ] Rewrite README using this sample [template](https://github.com/talyssonoc/node-api-boilerplate) 
-- [ ] Handle postgres with [Squelize](https://www.npmjs.com/package/sequelize)
-- [ ] Refactor code use Typescript
+-   [ ] Update authentication flow to use refreshToken
+-   [ ] Rewrite README using this sample [template](https://github.com/talyssonoc/node-api-boilerplate)
+-   [ ] Handle postgres with [Squelize](https://www.npmjs.com/package/sequelize)
+-   [ ] Refactor code use Typescript
