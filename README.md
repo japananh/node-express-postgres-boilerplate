@@ -1,59 +1,24 @@
 # Nodejs Express base API
 
-** This is express base API buid with express**
+This is a boilerplate application for building REST APIs in Node.js using ES6, Express and PostgreSQL.
 
 ## Getting Started
 
 ### Installation
 
-Clone the repo:
+1. Clone the repository with `https://gitlab.com/trungnq89/nodejs-api.git`
+2. Install the dependencies with `yarn install` (click here if [you don't have Yarn installed](https://yarnpkg.com/getting-started/install)
+3. Setup the database on `src/config/postgres.js` and config information on `env.example`
 
-```bash
-git+ssh://git@gitlab.com/trungnq89/nodejs-api.git
-cd nodejs-api
-```
+### Scripts
 
-Install the dependencies:
+This boilerplate comes with a collection of npm scripts to make your life easier, you'll run them with `npm run <script name>` or `yarn <script name>`:
 
-```bash
-yarn install
-```
-
-### Commands
-
-Running locally:
-
-```bash
-yarn dev
-```
-
-Running in production:
-
-```bash
-#TODO
-```
-
-Testing:
-
-```bash
-#TODO
-```
-
-Linting:
-
-```bash
-# run ESLint
-yarn lint
-
-# fix ESLint errors
-yarn lint:fix
-
-# run prettier
-yarn prettier
-
-# fix prettier errors
-yarn prettier:fix
-```
+-   `dev`: Run the application in development mode
+-   `lint`: Run ESLint
+-   `lint:fix`: Fix ESLint errors
+-   `prettier`: Run prettier
+-   `prettier:fix`: Fix prettier errors
 
 ## Project Structure
 
@@ -63,7 +28,6 @@ src\
  |--controllers\    # Route controllers (controller layer)
  |--docs\           # Swagger files
  |--middlewares\    # Custom express middlewares
- |--models\         # Mongoose models (data layer)
  |--routes\         # Routes
  |--services\       # Business logic (service layer)
  |--utils\          # Utility classes and functions
@@ -84,6 +48,8 @@ List of available routes:
 `POST /v1/auth/register` - register\
 `POST /v1/auth/login` - login\
 `POST /v1/auth/logout` - logout\
+`POST /v1/auth/forgot-password` - forgot-password\
+`POST /v1/auth/reset-password` - reset-password
 
 **User routes**:\
 `POST /v1/users` - create a user\
@@ -245,6 +211,6 @@ To be updated
 ## TODOs
 
 -   [ ] Update authentication flow to use refreshToken
--   [ ] Rewrite README using this sample [template](https://github.com/talyssonoc/node-api-boilerplate)
+-   [x] Rewrite README using this sample [template](https://github.com/talyssonoc/node-api-boilerplate)
 -   [ ] Handle postgres with [Squelize](https://www.npmjs.com/package/sequelize)
 -   [ ] Refactor code use Typescript
