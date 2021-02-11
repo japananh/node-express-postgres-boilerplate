@@ -1,7 +1,7 @@
 const httpStatus = require('http-status');
 const { generateQuery, getOffset } = require('../utils/query');
 const ApiError = require('../utils/ApiError');
-const tokenService = require('./token.service');
+const { encryptData } = require('../utils/auth');
 const config = require('../config/config.js');
 
 async function getUserByEmail(req, email) {
@@ -27,7 +27,7 @@ async function getUserById(req, id) {
 }
 
 async function createUser(req, { name, email, password }) {
-	const hashedPassword = await tokenService.encryptData(password);
+	const hashedPassword = await encryptData(password);
 	const query = `INSERT INTO "users" (name, email, password, role) 
 		VALUES ('${name}', '${email}', '${hashedPassword}', 'user') returning id;`;
 	const user = await generateQuery(req, query);
@@ -107,7 +107,7 @@ async function deleteUserById(req, userId) {
 async function updateUser(req, reqBody) {
 	let hashedPassword = '';
 	if (reqBody.password) {
-		hashedPassword = await tokenService.encryptData(reqBody.password);
+		hashedPassword = await encryptData(reqBody.password);
 	}
 	if (!hashedPassword) {
 		throw new ApiError(
