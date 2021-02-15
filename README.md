@@ -94,7 +94,7 @@ const httpStatus = require('http-status');
 const ApiError = require('../utils/ApiError');
 
 async function getUserById(req, id) {
-	const query = `SELECT * FROM "users" WHERE id = ${id} limit 1;`;
+	const query = `SELECT * FROM "user" WHERE id = ${id} limit 1;`;
 	const user = await generateQuery(req, query);
 
 	if (!user || !user.rowCount) {
@@ -210,7 +210,7 @@ To be updated
 
 ## TODOs
 
--   [ ] Update authentication flow to use refreshToken
+-   [x] Update authentication flow to use refreshToken
 -   [x] Rewrite README using this sample [template](https://github.com/talyssonoc/node-api-boilerplate)
 -   [ ] Handle postgres with [Squelize](https://www.npmjs.com/package/sequelize)
 -   [ ] Refactor code use Typescript
