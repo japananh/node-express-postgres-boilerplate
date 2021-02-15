@@ -6,7 +6,7 @@ const {
 	emailService,
 	tokenService,
 } = require('../services');
-const { setCookie } = require('../utils/auth');
+const { setCookie, verifyToken } = require('../utils/auth');
 
 const register = catchAsync(async (req, res) => {
 	const user = await userService.createUser(req, req.body);
@@ -15,12 +15,20 @@ const register = catchAsync(async (req, res) => {
 
 const login = catchAsync(async (req, res) => {
 	const user = await authService.loginUserWithEmailAndPassword(req, req.body);
+	const tokens = await tokenService.generateAuthTokens(req, {
+		userId: user.id,
+		role: user.role,
+	});
+
+	const { token: accessToken, expires } = tokens.access;
 	// Set httpOnly cookie, default expires = 24 hours
-	setCookie(res, 'token', { id: user.id, role: user.role });
-	res.send({ user });
+	setCookie(res, 'token', accessToken, expires);
+
+	res.send({ user, refresh: tokens.refresh });
 });
 
 const logout = catchAsync(async (req, res) => {
+	await authService.logout(req, req.body.refreshToken);
 	res.clearCookie('token');
 	res.send({ success: true });
 });
@@ -38,7 +46,12 @@ const forgotPassword = catchAsync(async (req, res) => {
 });
 
 const resetPassword = catchAsync(async (req, res) => {
-	await authService.resetPassword(req);
+	const { id } = await verifyToken(req.query.token);
+	const user = await userService.updateUser(req, {
+		password: req.body.password,
+		id,
+	});
+	await tokenService.deleteAllTokens(req, user.id);
 	res.send({ success: true });
 });
 
