@@ -1,7 +1,8 @@
 const httpStatus = require('http-status');
 const userService = require('./user.service');
 const ApiError = require('../utils/ApiError');
-const { decryptData, verifyToken } = require('../utils/auth');
+const { decryptData } = require('../utils/auth');
+const { generateQuery } = require('../utils/query');
 /**
  * Login with user email and password
  * @param {string} email
@@ -24,18 +25,16 @@ async function loginUserWithEmailAndPassword(req, { email, password }) {
 	return user;
 }
 
-async function resetPassword(req) {
-	const { id } = await verifyToken(req.query.token);
-	if (!id) {
-		throw new ApiError(
-			httpStatus.INTERNAL_SERVER_ERROR,
-			'Cannot update your password'
-		);
+async function logout(req, refreshToken) {
+	const accessToken = req.cookies.token;
+	const query = `DELETE FROM token WHERE token = '${refreshToken}' or token = '${accessToken}';`;
+	const tokens = await generateQuery(req, query);
+	if (!tokens.rowCount) {
+		throw new ApiError(httpStatus.NOT_FOUND, 'Token not found');
 	}
-	await userService.updateUser(req, { password: req.body.password, id });
 }
 
 module.exports = {
 	loginUserWithEmailAndPassword,
-	resetPassword,
+	logout,
 };

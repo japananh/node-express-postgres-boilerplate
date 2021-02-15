@@ -2,9 +2,11 @@ const jwt = require('jsonwebtoken');
 const bycrypt = require('bcrypt');
 const config = require('../config/config');
 
-function generateToken(data, expireHours = 24, secret = config.jwt.secret) {
-	const expires = expireHours * 3600 * 1000;
-	const token = jwt.sign(data, secret, { expiresIn: expires });
+function generateToken(data, expiresMs, secret = config.jwt.secret) {
+	const token = jwt.sign(
+		{ exp: Math.floor(expiresMs / 1000), ...data },
+		secret
+	);
 	return token;
 }
 
@@ -28,22 +30,21 @@ async function decryptData(string, hashedString) {
 	return isValid;
 }
 
-function setCookie(
-	res,
-	cookieName,
-	data,
-	expireHours = config.cookie.COOKIE_EXPIRATION_HOURS
-) {
-	const expires = expireHours * 3600 * 1000;
-	const token = generateToken(data, expireHours);
-	res.cookie(cookieName, token, {
+function setCookie(res, cookieName, cookieValue, expiresMs) {
+	res.cookie(cookieName, cookieValue, {
 		httpOnly: true,
-		expires: new Date(Date.now() + expires),
+		expires: new Date(expiresMs),
 	});
+}
+
+function generateExpires(hours) {
+	const ms = Math.floor(Date.now() + hours * 60 * 60 * 1000);
+	return ms;
 }
 
 module.exports = {
 	generateToken,
+	generateExpires,
 	verifyToken,
 	encryptData,
 	decryptData,
