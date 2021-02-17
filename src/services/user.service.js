@@ -29,7 +29,7 @@ async function getUserById(req, id) {
 async function createUser(req, { name, email, password }) {
 	const hashedPassword = await encryptData(password);
 	const query = `INSERT INTO "user" (name, email, password, role) 
-		VALUES ('${name}', '${email}', '${hashedPassword}', 'user') returning id;`;
+		VALUES ('${name}', '${email}', '${hashedPassword}', 'user') returning *;`;
 	const user = await generateQuery(req, query);
 
 	if (!user || !user.rowCount) {
@@ -39,6 +39,7 @@ async function createUser(req, { name, email, password }) {
 		);
 	}
 
+	delete user.rows[0].password;
 	return user.rows[0];
 }
 

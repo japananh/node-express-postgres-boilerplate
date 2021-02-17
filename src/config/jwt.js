@@ -19,8 +19,7 @@ function jwt() {
 	}).unless({
 		path: [
 			// public routes that don't require authentication
-			/\/v[1-9](\d)*\/auth\/.*/,
-			/\/v1\/docs\/.*/,
+			/\/v[1-9](\d)*\/(auth|docs)\/.*/,
 		],
 	});
 }

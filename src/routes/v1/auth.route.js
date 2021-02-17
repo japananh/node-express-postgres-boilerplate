@@ -118,6 +118,8 @@ module.exports = router;
  *                properties:
  *                  user:
  *                    $ref: '#/components/schemas/User'
+ *                  refresh:
+ *                    $ref: '#/components/schemas/Token'
  *        "401":
  *          description: Invalid email or password
  *          content:
@@ -137,7 +139,7 @@ module.exports = router;
  *      tags: [Auth]
  *      sercurity: []
  *      responses:
- *        "204":
+ *        "200":
  *          description: OK
  *          content:
  *            application/json:
@@ -199,8 +201,12 @@ module.exports = router;
  *              example:
  *                email: fake@example.com
  *      responses:
- *        "204":
- *          description: No content
+ *        "200":
+ *          description: OK
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Success'
  *        "404":
  *          $ref: '#/components/responses/NotFound'
  */
@@ -235,8 +241,12 @@ module.exports = router;
  *              example:
  *                password: password1
  *      responses:
- *        "204":
- *          description: No content
+ *        "200":
+ *          description: OK
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Success'
  *        "401":
  *          description: Password reset failed
  *          content:
