@@ -11,7 +11,6 @@ router.post(
 	authController.register
 );
 router.post('/login', validate(authValidation.login), authController.login);
-router.post('/logout', validate(authValidation.logout), authController.logout);
 router.post(
 	'/forgot-password',
 	validate(authValidation.forgotPassword),
@@ -118,8 +117,8 @@ module.exports = router;
  *                properties:
  *                  user:
  *                    $ref: '#/components/schemas/User'
- *                  refresh:
- *                    $ref: '#/components/schemas/Token'
+ *                  tokens:
+ *                    $ref: '#/components/schemas/AuthTokens'
  *        "401":
  *          description: Invalid email or password
  *          content:
@@ -129,24 +128,6 @@ module.exports = router;
  *              example:
  *                code: 401
  *                message: Invalid email or password
- */
-
-/**
- * @swagger
- * auth/logout:
- *    post:
- *      summary: Logout
- *      tags: [Auth]
- *      sercurity: []
- *      responses:
- *        "200":
- *          description: OK
- *          content:
- *            application/json:
- *              schema:
- *                $ref: '#/components/schemas/Success'
- *        "404":
- *          $ref: '#/components/responses/NotFound'
  */
 
 /**

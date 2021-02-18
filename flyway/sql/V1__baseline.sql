@@ -10,13 +10,3 @@ CREATE TABLE IF NOT EXISTS public."user" (
     "password" varchar NOT NULL,
     PRIMARY KEY ("id")
 );
-
-CREATE TABLE IF NOT EXISTS public."token" (
-    "token" varchar NOT NULL,
-    "user_id" integer NOT NULL,
-    "type" varchar NOT NULL,
-    PRIMARY KEY ("token")
-
-);
-
-ALTER TABLE "token" ADD FOREIGN KEY ("user_id") REFERENCES "user" ("id");
