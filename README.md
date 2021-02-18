@@ -153,7 +153,7 @@ The `auth` middleware is used to require certain rights/permissions to access a 
 
 ```javascript
 const express = require('express');
-const { grantAccess } = require('../../middlewares/auth');
+const { grantAccess } = require('../../middlewares/validateAccessControl');
 const validate = require('../../middlewares/validate');
 const userValidation = require('../../validations/user.validation');
 const userController = require('../../controllers/user.controller');
