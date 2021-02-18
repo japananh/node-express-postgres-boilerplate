@@ -18,3 +18,14 @@ straightforward as possible.
 ### Changed
  
 ### Fixed
+
+## [1.1.0] - 2021-02-12
+
+### Changed
+- Improve authentication flow with jwt accessToken and freshToken
+- Improve authorization flow with accesscontrol library
+
+## [1.0.0] - 2021-02-07
+
+### Added
+- [EX](https://macropolo.atlassian.net/browse/EX-2) Create source code structure
