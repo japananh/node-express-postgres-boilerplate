@@ -47,7 +47,6 @@ List of available routes:
 **Auth routes**:\
 `POST /v1/auth/register` - register\
 `POST /v1/auth/login` - login\
-`POST /v1/auth/logout` - logout\
 `POST /v1/auth/forgot-password` - forgot-password\
 `POST /v1/auth/reset-password` - reset-password
 
