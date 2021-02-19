@@ -6,7 +6,7 @@ const createUser = {
 		email: Joi.string().required().email(),
 		password: Joi.string().required().custom(password),
 		name: Joi.string().required(),
-		role: Joi.string().required().valid('user', 'admin'),
+		roleId: Joi.number().required(),
 	}),
 };
 
@@ -14,7 +14,7 @@ const getUsers = {
 	query: Joi.object().keys({
 		name: Joi.string(),
 		email: Joi.string().email(),
-		role: Joi.string().valid('user', 'admin'),
+		roleId: Joi.number(),
 		sortBy: Joi.string().valid('name', 'email'),
 		limit: Joi.number().min(1),
 		page: Joi.number().min(1),

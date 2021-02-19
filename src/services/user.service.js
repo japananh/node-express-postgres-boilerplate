@@ -5,47 +5,44 @@ const { encryptData } = require('../utils/auth');
 const config = require('../config/config.js');
 
 async function getUserByEmail(req, email) {
-	const query = `SELECT * FROM "user" WHERE email = '${email}' limit 1;`;
+	const query = `SELECT u.*, r.name as role_name FROM "user" u
+		INNER JOIN "role" r ON r.id = u.role_id
+		WHERE u.email = '${email}' limit 1;`;
 	const user = await generateQuery(req, query);
 
-	if (!user || !user.rowCount) {
+	if (!user.length) {
 		throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
 	}
 
-	return user.rows[0];
+	return user[0];
 }
 
 async function getUserById(req, id) {
-	const query = `SELECT * FROM "user" WHERE id = ${id} limit 1;`;
+	const query = `SELECT u.*, r.name as role_name FROM "user" u
+		INNER JOIN "role" r ON r.id = u.role_id
+		WHERE u.id = '${id}' limit 1;`;
 	const user = await generateQuery(req, query);
 
-	if (!user || !user.rowCount) {
+	if (!user.length) {
 		throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
 	}
 
-	return user.rows[0];
+	return user[0];
 }
 
-async function createUser(req, { name, email, password }) {
+async function createUser(req, { name, email, password, roleId }) {
 	const hashedPassword = await encryptData(password);
-	const query = `INSERT INTO "user" (name, email, password, role) 
-		VALUES ('${name}', '${email}', '${hashedPassword}', 'user') returning *;`;
+	const query = `INSERT INTO "user" (name, email, password, role_id) 
+		VALUES ('${name}', '${email}', '${hashedPassword}', '${roleId}') returning *;`;
 	const user = await generateQuery(req, query);
 
-	if (!user || !user.rowCount) {
-		throw new ApiError(
-			httpStatus.INTERNAL_SERVER_ERROR,
-			'Internal Server Error'
-		);
-	}
-
-	delete user.rows[0].password;
-	return user.rows[0];
+	delete user[0].password;
+	return user[0];
 }
 
 async function getUsers(req, queries) {
 	let { page, limit } = config.pagination;
-	let conditions = 'id IS NOT NULL';
+	let conditions = 'u.id IS NOT NULL';
 
 	Object.keys(queries).forEach((key) => {
 		switch (key) {
@@ -71,15 +68,14 @@ async function getUsers(req, queries) {
 
 	const offset = getOffset(page, limit);
 	const query = `
-		SELECT id, name, email, role, created_date_time, modified_date_time
-		FROM "user" WHERE ${conditions} limit ${limit} offset ${offset};`;
+		SELECT u.id, u.name, u.email, u.created_date_time, u.modified_date_time, r.name as role
+		FROM "user" u
+		INNER JOIN "role" r ON r.id = u.role_id
+		WHERE ${conditions} LIMIT ${limit} OFFSET ${offset};`;
 
 	const users = await generateQuery(req, query);
-	if (!users || !users.rowCount) {
-		throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-	}
 
-	return users.rows;
+	return users;
 }
 
 async function deleteUserById(req, userId) {
@@ -95,14 +91,8 @@ async function deleteUserById(req, userId) {
 
 	const query = `DELETE FROM "user" where id = '${userId}' returning id;`;
 	const deletedUser = await generateQuery(req, query);
-	if (!deletedUser || !deletedUser.rowCount) {
-		throw new ApiError(
-			httpStatus.INTERNAL_SERVER_ERROR,
-			'Internal Server Error'
-		);
-	}
 
-	return deletedUser.rows[0];
+	return deletedUser[0];
 }
 
 async function updateUser(req, reqBody) {
@@ -130,14 +120,75 @@ async function updateUser(req, reqBody) {
 	}' RETURNING *;`;
 	const user = await generateQuery(req, query);
 
-	if (!user || !user.rowCount) {
-		throw new ApiError(
-			httpStatus.INTERNAL_SERVER_ERROR,
-			'Internal Server Error'
-		);
+	return { ...reqBody, id: user[0].id };
+}
+
+async function getUserRole(req, { roleId, roleName }) {
+	const query = `SELECT * FROM "role" WHERE id = '${roleId}' OR name = '${roleName}' limit 1;`;
+	const userRole = await generateQuery(req, query);
+
+	if (!userRole.length) {
+		throw new ApiError(httpStatus.NOT_FOUND, 'Role not found');
 	}
 
-	return { ...reqBody, id: user.rows[0].id };
+	return userRole[0];
+}
+
+async function getRoles(req, queries) {
+	let { page, limit } = config.pagination;
+	let conditions = 'id IS NOT NULL';
+
+	Object.keys(queries).forEach((key) => {
+		switch (key) {
+			case 'page':
+				page = queries[key];
+				break;
+			case 'limit':
+				limit = queries[key];
+				break;
+			case 'name':
+				conditions += ` AND ${key} LIKE '%${queries[key]}%'`;
+				break;
+			default:
+		}
+	});
+
+	if (queries.sortBy) {
+		conditions += ` ORDER BY ${queries.sortBy}, created_date_time DESC, modified_date_time DESC`;
+	} else {
+		conditions += ` ORDER BY created_date_time DESC, modified_date_time DESC`;
+	}
+
+	const offset = getOffset(page, limit);
+	const query = `
+		SELECT * FROM "role" WHERE ${conditions} LIMIT ${limit} OFFSET ${offset};`;
+
+	const userRoles = await generateQuery(req, query);
+
+	return userRoles;
+}
+
+async function createUserRole(req, { name, description = '' }) {
+	const query = `INSERT INTO "role" (name, description) 
+		VALUES ('${name}', '${description}' returning *;`;
+	const userRole = await generateQuery(req, query);
+
+	return userRole[0];
+}
+
+async function updateUserRole(req) {
+	const set = [];
+	Object.keys(req.body).forEach((key) => {
+		const value = req.body[key];
+		set.push(`${key} = '${value}'`);
+	});
+
+	const query = `UPDATE "role" SET ${set.join(' , ')} WHERE id = '${
+		req.params.id
+	}' RETURNING *;`;
+	const userRole = await generateQuery(req, query);
+
+	return { ...req.body, id: userRole[0].id };
 }
 
 module.exports = {
@@ -147,4 +198,8 @@ module.exports = {
 	updateUser,
 	getUsers,
 	deleteUserById,
+	getUserRole,
+	getRoles,
+	createUserRole,
+	updateUserRole,
 };

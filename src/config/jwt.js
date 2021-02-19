@@ -10,7 +10,9 @@ function jwt() {
 	return expressJwt({
 		secret,
 		getToken: function fromHeaderOrQuerystring(req) {
-			const { token } = req.cookies || {};
+			const token = req.headers.authorization
+				? req.headers.authorization.split(' ')[1]
+				: req.query.token;
 			if (token) return token;
 			return null;
 		},

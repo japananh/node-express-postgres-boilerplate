@@ -10,14 +10,18 @@ const { verifyToken } = require('../utils/auth');
 
 const register = catchAsync(async (req, res) => {
 	const user = await userService.createUser(req, req.body);
-	res.status(httpStatus.CREATED).send({ user });
+	const tokens = await tokenService.generateAuthTokens({
+		userId: user.id,
+		roleId: user.role_id,
+	});
+	res.status(httpStatus.CREATED).send({ user, tokens });
 });
 
 const login = catchAsync(async (req, res) => {
 	const user = await authService.loginUserWithEmailAndPassword(req);
 	const tokens = await tokenService.generateAuthTokens({
 		userId: user.id,
-		role: user.role,
+		roleId: user.role_id,
 	});
 	res.send({ user, tokens });
 });
