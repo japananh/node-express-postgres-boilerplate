@@ -1,7 +1,12 @@
 const config = require('../config/config.js');
 
 async function generateQuery(req, query) {
-	const result = await req.postgres.query(query);
+	const result = await req.postgres
+		.query(query)
+		.then((res) => res.rows)
+		.catch((err) => {
+			throw new Error(err.stack);
+		});
 	return result;
 }
 
