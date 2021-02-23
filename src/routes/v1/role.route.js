@@ -4,13 +4,14 @@ const { roleValidation } = require('../../validations');
 const { roleController } = require('../../controllers');
 
 const { grantAccess } = require('../../middlewares/validateAccessControl');
+const { resources } = require('../../config/roles');
 
 const router = express.Router();
 
 router
 	.route('/role')
 	.get(
-		grantAccess('updateAny', 1),
+		grantAccess('readAny', resources.ROLE),
 		validate(roleValidation.getRoles),
 		roleController.getRoles
 	);
@@ -18,17 +19,17 @@ router
 router
 	.route('/role/:roleId')
 	.get(
-		grantAccess('updateAny', 1),
+		grantAccess('readAny', resources.ROLE),
 		validate(roleValidation.getRole),
 		roleController.getRole
 	)
 	.patch(
-		grantAccess('updateAny', 1),
+		grantAccess('updateAny', resources.ROLE),
 		validate(roleValidation.updateUser),
 		roleController.updateRole
 	)
 	.delete(
-		grantAccess('deleteAny', 1),
+		grantAccess('deleteAny', resources.ROLE),
 		validate(roleValidation.deleteRole),
 		roleController.deleteRole
 	);
