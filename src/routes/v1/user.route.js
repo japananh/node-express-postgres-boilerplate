@@ -9,7 +9,7 @@ const router = express.Router();
 router
 	.route('/')
 	.get(
-		grantAccess('readAny', 'user'),
+		grantAccess('readAny', 'userInfo'),
 		validate(userValidation.getUsers),
 		userController.getUsers
 	);
@@ -17,17 +17,17 @@ router
 router
 	.route('/:userId')
 	.get(
-		grantAccess('readAny', 'user'),
+		grantAccess('readAny', 'userInfo'),
 		validate(userValidation.getUser),
 		userController.getUser
 	)
 	.patch(
-		grantAccess('updateAny', 'user'),
+		grantAccess('updateAny', 'userInfo'),
 		validate(userValidation.updateUser),
 		userController.updateUser
 	)
 	.delete(
-		grantAccess('deleteAny', 'user'),
+		grantAccess('deleteAny', 'userInfo'),
 		validate(userValidation.deleteUser),
 		userController.deleteUser
 	);

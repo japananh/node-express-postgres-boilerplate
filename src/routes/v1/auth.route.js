@@ -84,7 +84,7 @@ module.exports = router;
 
 /**
  * @swagger
- * auth/login:
+ * /auth/login:
  *    post:
  *      summary: Login
  *      tags: [Auth]
