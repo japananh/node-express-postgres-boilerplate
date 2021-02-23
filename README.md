@@ -211,5 +211,6 @@ To be updated
 
 -   [x] Update authentication flow to use refreshToken
 -   [x] Rewrite README using this sample [template](https://github.com/talyssonoc/node-api-boilerplate)
+-   [ ] Add test
 -   [ ] Handle postgres with [Squelize](https://www.npmjs.com/package/sequelize)
 -   [ ] Refactor code use Typescript
