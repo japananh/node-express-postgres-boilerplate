@@ -3,13 +3,14 @@ const validate = require('../../middlewares/validate');
 const userValidation = require('../../validations/user.validation');
 const userController = require('../../controllers/user.controller');
 const { grantAccess } = require('../../middlewares/validateAccessControl');
+const { resources } = require('../../config/roles');
 
 const router = express.Router();
 
 router
 	.route('/')
 	.get(
-		grantAccess('readAny', 'userInfo'),
+		grantAccess('readAny', resources.USERINFO),
 		validate(userValidation.getUsers),
 		userController.getUsers
 	);
@@ -17,17 +18,17 @@ router
 router
 	.route('/:userId')
 	.get(
-		grantAccess('readAny', 'userInfo'),
+		grantAccess('readAny', resources.USERINFO),
 		validate(userValidation.getUser),
 		userController.getUser
 	)
 	.patch(
-		grantAccess('updateAny', 'userInfo'),
+		grantAccess('updateAny', resources.USERINFO),
 		validate(userValidation.updateUser),
 		userController.updateUser
 	)
 	.delete(
-		grantAccess('deleteAny', 'userInfo'),
+		grantAccess('deleteAny', resources.USERINFO),
 		validate(userValidation.deleteUser),
 		userController.deleteUser
 	);
