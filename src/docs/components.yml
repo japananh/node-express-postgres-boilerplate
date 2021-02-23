@@ -12,7 +12,6 @@ components:
                     type: string
                 role:
                     type: string
-                    enum: [user, admin]
                 created_date_time:
                     type: date
                 modified_date_time:
@@ -22,6 +21,26 @@ components:
                 email: fake@example.com
                 name: fake name
                 role: user
+                created_date_time: 2021-02-10T13:38:36.231Z
+                modified_date_time: 2021-02-10T13:38:36.231Z
+
+        Role:
+            type: object
+            properties:
+                id:
+                    type: number
+                name:
+                    type: string
+                description:
+                    type: string
+                created_date_time:
+                    type: date
+                modified_date_time:
+                    type: date
+            example:
+                id: 1
+                name: admin
+                description: admin
                 created_date_time: 2021-02-10T13:38:36.231Z
                 modified_date_time: 2021-02-10T13:38:36.231Z
 

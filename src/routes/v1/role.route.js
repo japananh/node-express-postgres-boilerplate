@@ -1,27 +1,36 @@
 const express = require('express');
 const validate = require('../../middlewares/validate');
-const roleValidation = require('../../validations/user.validation');
-const userController = require('../../controllers/user.controller');
+const { roleValidation } = require('../../validations');
+const { roleController } = require('../../controllers');
+
 const { grantAccess } = require('../../middlewares/validateAccessControl');
 
 const router = express.Router();
 
 router
 	.route('/role')
-	.get(validate(roleValidation.getRoles), userController.getRoles);
+	.get(
+		grantAccess('updateAny', 1),
+		validate(roleValidation.getRoles),
+		roleController.getRoles
+	);
 
 router
 	.route('/role/:roleId')
-	.get(validate(roleValidation.getRole), userController.getRole)
+	.get(
+		grantAccess('updateAny', 1),
+		validate(roleValidation.getRole),
+		roleController.getRole
+	)
 	.patch(
-		grantAccess('updateAny', 'user'),
+		grantAccess('updateAny', 1),
 		validate(roleValidation.updateUser),
-		userController.updateRole
+		roleController.updateRole
 	)
 	.delete(
-		grantAccess('deleteAny', 'user'),
+		grantAccess('deleteAny', 1),
 		validate(roleValidation.deleteRole),
-		userController.deleteRole
+		roleController.deleteRole
 	);
 
 module.exports = router;
@@ -30,7 +39,7 @@ module.exports = router;
  * @swagger
  * tags:
  *   name: Roles
- *   description: User role management and retrieval
+ *   description: Role management and retrieval
  */
 
 /**
@@ -38,7 +47,7 @@ module.exports = router;
  * /roles:
  *    post:
  *      summary: Create a role
- *      description: Only admins can create other users' roles.
+ *      description: Only admins can create roles.
  *      tags: [Roles]
  *      security:
  *        - bearerAuth: []
@@ -76,7 +85,7 @@ module.exports = router;
  *
  *    get:
  *      summary: Get all users' roles
- *      description: Only admins can retrieve all users' roles.
+ *      description: Only admins can retrieve all roles.
  *      tags: [Roles]
  *      security:
  *        - bearerAuth: []
@@ -85,17 +94,12 @@ module.exports = router;
  *          name: name
  *          schema:
  *            type: string
- *          description: User name
+ *          description: role name
  *        - in: query
- *          name: email
+ *          name: description
  *          schema:
  *            type: string
- *          description: User email
- *        - in: query
- *          name: role
- *          schema:
- *            type: string
- *          description: User role
+ *          description: role descrition
  *        - in: query
  *          name: sortBy
  *          schema:
@@ -133,12 +137,6 @@ module.exports = router;
  *                  limit:
  *                    type: integer
  *                    example: 10
- *                  totalPages:
- *                    type: integer
- *                    example: 1
- *                  totalResults:
- *                    type: integer
- *                    example: 1
  *        "401":
  *          $ref: '#/components/responses/Unauthorized'
  *        "403":
@@ -150,8 +148,8 @@ module.exports = router;
  * /roles/{id}:
  *    get:
  *      summary: Get a user's role
- *      description: Logged in users can fetch only their own user information. Only admins can fetch other roles
- *      tags: [Users]
+ *      description: Only admins can fetch other roles
+ *      tags: [Roles]
  *      security:
  *        - bearerAuth: []
  *      parameters:
@@ -167,7 +165,7 @@ module.exports = router;
  *          content:
  *            application/json:
  *              schema:
- *                 $ref: '#/components/schemas/User'
+ *                 $ref: '#/components/schemas/Role'
  *        "401":
  *          $ref: '#/components/responses/Unauthorized'
  *        "403":
@@ -177,8 +175,8 @@ module.exports = router;
  *
  *    patch:
  *      summary: Update a user's role
- *      description: Logged in users can only update their own information. Only admins can update other users' roles.
- *      tags: [Users]
+ *      description: Only admins can update other users' roles.
+ *      tags: [Roles]
  *      security:
  *        - bearerAuth: []
  *      parameters:
@@ -218,7 +216,7 @@ module.exports = router;
  *
  *    delete:
  *      summary: Delete a user's role
- *      description: Logged in users can delete only themselves. Only admins can delete other users' roles.
+ *      description: Only admins can delete roles.
  *      tags: [Roles]
  *      security:
  *        - bearerAuth: []
