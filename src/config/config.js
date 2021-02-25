@@ -23,10 +23,24 @@ const envVarsSchema = Joi.object()
 			.default(24)
 			.description('hours after which httpOnly cookie expire'),
 
-		SQL_USER: Joi.string().description('sqldb username'),
+		SQL_USERNAME: Joi.string().description('sqldb username'),
 		SQL_HOST: Joi.string().description('sqldb host'),
 		SQL_DATABASE_NAME: Joi.string().description('sqldb database name'),
 		SQL_PASSWORD: Joi.string().description('sqldb password'),
+		SQL_DIALECT: Joi.string()
+			.default('postgres')
+			.description('type of sqldb'),
+		SQL_MAX_POOL: Joi.number()
+			.default(5)
+			.min(1)
+			.description('sqldb max pool connection'),
+		SQL_MIN_POOL: Joi.number()
+			.default(0)
+			.min(0)
+			.description('sqldb min pool connection'),
+		SQL_IDLE: Joi.number()
+			.default(10000)
+			.description('sqldb max pool idle time in miliseconds'),
 
 		SMTP_HOST: Joi.string().description('server that will send the emails'),
 		SMTP_PORT: Joi.number().description(
@@ -62,13 +76,28 @@ module.exports = {
 		resetPasswordExpirationMinutes: 10,
 	},
 	cookie: {
-		cookieExpirationHours: envVars,
+		cookieExpirationHours: envVars.COOKIE_EXPIRATION_HOURS,
 	},
 	sqlDB: {
-		user: envVars.SQL_USER,
+		user: envVars.SQL_USERNAME,
 		host: envVars.SQL_HOST,
 		database: envVars.SQL_DATABASE_NAME,
 		password: envVars.SQL_PASSWORD,
+		dialect: envVars.SQL_DIALECT,
+		pool: {
+			max: envVars.SQL_MAX_POOL,
+			min: envVars.SQL_MIN_POOL,
+			idle: envVars.SQL_IDLE,
+		},
+		define: {
+			/**
+			 * Disable sequelize automatically adds the fields createAt and updateAt
+			 * References: https://sequelize.org/master/manual/model-basics.html#timestamps
+			 */
+			timestamps: false,
+			freezeTableName: true,
+			underscored: true,
+		},
 	},
 	email: {
 		smtp: {

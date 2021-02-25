@@ -3,31 +3,44 @@ const { generateQuery, getOffset } = require('../utils/query');
 const ApiError = require('../utils/ApiError');
 const { encryptData } = require('../utils/auth');
 const config = require('../config/config.js');
+const db = require('../models');
 
-async function getUserByEmail(req, email) {
-	const query = `SELECT u.*, r.name as role_name FROM "user" u
-		INNER JOIN "role" r ON r.id = u.role_id
-		WHERE u.email = '${email}' limit 1;`;
-	const user = await generateQuery(req, query);
+async function getUserByEmail(email) {
+	const user = await db.user.findOne({
+		where: { email },
+		include: [
+			{
+				model: db.role,
+				require: true,
+				attributes: ['id', 'name'],
+			},
+		],
+	});
 
-	if (!user.length) {
+	if (!user) {
 		throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
 	}
 
-	return user[0];
+	return user.dataValues;
 }
 
-async function getUserById(req, id) {
-	const query = `SELECT u.*, r.name as role_name FROM "user" u
-		INNER JOIN "role" r ON r.id = u.role_id
-		WHERE u.id = '${id}' limit 1;`;
-	const user = await generateQuery(req, query);
+async function getUserById(id) {
+	const user = await db.user.findOne({
+		where: { id },
+		include: [
+			{
+				model: db.role,
+				require: true,
+				attributes: ['id', 'name'],
+			},
+		],
+	});
 
-	if (!user.length) {
+	if (!user) {
 		throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
 	}
 
-	return user[0];
+	return user.dataValues;
 }
 
 async function createUser(req, { name, email, password, roleId }) {

@@ -55,6 +55,8 @@
     "morgan": "^1.10.0",
     "nodemailer": "^6.4.17",
     "pg": "^8.5.1",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^6.5.0",
     "swagger-jsdoc": "^6.0.2",
     "swagger-ui-express": "^4.1.6",
     "winston": "^3.3.3",
@@ -69,6 +71,7 @@
     "eslint-plugin-prettier": "^3.3.1",
     "nodemon": "^2.0.7",
     "prettier": "^2.2.1",
+    "sequelize-cli": "^6.2.0",
     "update-changelog": "^1.0.2"
   }
 }

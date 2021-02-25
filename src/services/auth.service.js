@@ -5,7 +5,7 @@ const { decryptData } = require('../utils/auth');
 
 async function loginUserWithEmailAndPassword(req) {
 	const { email, password } = req.body;
-	const user = await userService.getUserByEmail(req, email);
+	const user = await userService.getUserByEmail(email);
 	const isPasswordMatch = await decryptData(password, user.password);
 
 	if (!user || !isPasswordMatch) {

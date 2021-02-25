@@ -4,8 +4,8 @@ const userService = require('./user.service');
 const ApiError = require('../utils/ApiError');
 const { generateToken, generateExpires } = require('../utils/auth');
 
-async function generateResetPasswordToken(req, email) {
-	const user = await userService.getUserByEmail(req, email);
+async function generateResetPasswordToken(email) {
+	const user = await userService.getUserByEmail(email);
 	if (!user || !user.id) {
 		throw new ApiError(
 			httpStatus.NOT_FOUND,
