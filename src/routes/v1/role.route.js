@@ -9,15 +9,20 @@ const { resources } = require('../../config/roles');
 const router = express.Router();
 
 router
-	.route('/role')
+	.route('/')
 	.get(
 		grantAccess('readAny', resources.ROLE),
 		validate(roleValidation.getRoles),
 		roleController.getRoles
+	)
+	.post(
+		grantAccess('createAny', resources.ROLE),
+		validate(roleValidation.createRole),
+		roleController.createRole
 	);
 
 router
-	.route('/role/:roleId')
+	.route('/:roleId')
 	.get(
 		grantAccess('readAny', resources.ROLE),
 		validate(roleValidation.getRole),

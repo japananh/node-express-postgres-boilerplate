@@ -57,6 +57,13 @@ List of available routes:
 `PATCH /v1/users/:userId` - update user\
 `DELETE /v1/users/:userId` - delete user
 
+**Role routes**:\
+`POST /v1/roles` - create a role\
+`GET /v1/roles` - get all roles\
+`GET /v1/roles/:roleId` - get a role\
+`PATCH /v1/roles/:roleId` - update a role\
+`DELETE /v1/roles/:roleId` - delete a role
+
 ## Error Handling
 
 The app has a centralized error handling mechanism.
@@ -88,28 +95,19 @@ The app has a utility ApiError class to which you can attach a response code and
 For example, if you are trying to get a user from the DB who is not found, and you want to send a 404 error, the code should look something like:
 
 ```javascript
-// user.service.js
+// user.controller.js
 const httpStatus = require('http-status');
 const ApiError = require('../utils/ApiError');
 
-async function getUserById(req, id) {
-	const query = `SELECT * FROM "user" WHERE id = ${id} limit 1;`;
-	const user = await generateQuery(req, query);
+const getUser = catchAsync(async (req, res) => {
+	const user = await userService.getUserById(req.params.userId);
 
-	if (!user || !user.rowCount) {
+	if (!user) {
 		throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
 	}
 
-	return user.rows[0];
-}
-```
-
-```javascript
-// This function should be stored in src/utils folder
-async function generateQuery(req, query) {
-	const result = await req.postgres.query(query);
-	return result;
-}
+	res.send({ user });
+});
 ```
 
 ## Validation
@@ -211,6 +209,7 @@ To be updated
 
 -   [x] Update authentication flow to use refreshToken
 -   [x] Rewrite README using this sample [template](https://github.com/talyssonoc/node-api-boilerplate)
+-   [x] Handle postgres with [Squelize](https://www.npmjs.com/package/sequelize)
+-   [ ] Update CHANGELOG
 -   [ ] Add test
--   [ ] Handle postgres with [Squelize](https://www.npmjs.com/package/sequelize)
 -   [ ] Refactor code use Typescript

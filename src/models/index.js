@@ -4,7 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
 
-const logger = require('../config/logger');
 const config = require('../config/config');
 
 const basename = path.basename(module.filename);
@@ -17,9 +16,7 @@ const sequelize = new Sequelize(
 	config.sqlDB.password,
 	{
 		...config.sqlDB,
-		logging: (err) => {
-			logger.error(`Database Error: ${err}`);
-		},
+		logging: false,
 	}
 );
 

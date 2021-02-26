@@ -15,7 +15,6 @@ const getUsers = {
 		name: Joi.string(),
 		email: Joi.string().email(),
 		roleId: Joi.number(),
-		sortBy: Joi.string().valid('name', 'email'),
 		limit: Joi.number().min(1),
 		page: Joi.number().min(1),
 	}),

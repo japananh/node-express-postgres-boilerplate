@@ -9,7 +9,7 @@ async function generateResetPasswordToken(email) {
 	if (!user || !user.id) {
 		throw new ApiError(
 			httpStatus.NOT_FOUND,
-			'No user found with this email'
+			'User not found with this email'
 		);
 	}
 

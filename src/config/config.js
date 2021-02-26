@@ -31,8 +31,8 @@ const envVarsSchema = Joi.object()
 			.default('postgres')
 			.description('type of sqldb'),
 		SQL_MAX_POOL: Joi.number()
-			.default(5)
-			.min(1)
+			.default(10)
+			.min(5)
 			.description('sqldb max pool connection'),
 		SQL_MIN_POOL: Joi.number()
 			.default(0)
@@ -91,11 +91,13 @@ module.exports = {
 		},
 		define: {
 			/**
-			 * Disable sequelize automatically adds the fields createAt and updateAt
+			 * All tables won't have "createdAt" and "updatedAt" Auto fields.
 			 * References: https://sequelize.org/master/manual/model-basics.html#timestamps
 			 */
 			timestamps: false,
+			// Table names won't be pluralized.
 			freezeTableName: true,
+			// Column names will be underscored.
 			underscored: true,
 		},
 	},

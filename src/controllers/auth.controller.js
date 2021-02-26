@@ -9,11 +9,12 @@ const {
 const { verifyToken } = require('../utils/auth');
 
 const register = catchAsync(async (req, res) => {
-	const user = await userService.createUser(req, req.body);
+	const user = await userService.createUser(req);
 	const tokens = await tokenService.generateAuthTokens({
 		userId: user.id,
 		roleId: user.role_id,
 	});
+	delete user.password;
 	res.status(httpStatus.CREATED).send({ user, tokens });
 });
 
@@ -28,7 +29,6 @@ const login = catchAsync(async (req, res) => {
 
 const forgotPassword = catchAsync(async (req, res) => {
 	const resetPasswordToken = await tokenService.generateResetPasswordToken(
-		req,
 		req.body.email
 	);
 	await emailService.sendResetPasswordEmail(
@@ -40,10 +40,8 @@ const forgotPassword = catchAsync(async (req, res) => {
 
 const resetPassword = catchAsync(async (req, res) => {
 	const { id } = await verifyToken(req.query.token);
-	await userService.updateUser(req, {
-		password: req.body.password,
-		id,
-	});
+	req.body.id = id;
+	await userService.updateUser(req);
 	res.send({ success: true });
 });
 
