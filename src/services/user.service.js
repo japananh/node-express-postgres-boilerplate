@@ -1,9 +1,10 @@
 const httpStatus = require('http-status');
-const { generateQuery, getOffset } = require('../utils/query');
+const { getOffset } = require('../utils/query');
 const ApiError = require('../utils/ApiError');
 const { encryptData } = require('../utils/auth');
 const config = require('../config/config.js');
 const db = require('../models');
+const roleService = require('./role.service');
 
 async function getUserByEmail(email) {
 	const user = await db.user.findOne({
@@ -15,13 +16,10 @@ async function getUserByEmail(email) {
 				attributes: ['id', 'name'],
 			},
 		],
+		raw: true,
 	});
 
-	if (!user) {
-		throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-	}
-
-	return user.dataValues;
+	return user;
 }
 
 async function getUserById(id) {
@@ -34,106 +32,125 @@ async function getUserById(id) {
 				attributes: ['id', 'name'],
 			},
 		],
+		raw: true,
 	});
 
-	if (!user) {
-		throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-	}
-
-	return user.dataValues;
+	return user;
 }
 
-async function createUser(req, { name, email, password, roleId }) {
+async function createUser(req) {
+	const { email, name, password, roleId } = req.body;
 	const hashedPassword = await encryptData(password);
-	const query = `INSERT INTO "user" (name, email, password, role_id) 
-		VALUES ('${name}', '${email}', '${hashedPassword}', '${roleId}') returning *;`;
-	const user = await generateQuery(req, query);
+	const user = await getUserByEmail(email);
 
-	delete user[0].password;
-	return user[0];
+	if (user) {
+		throw new ApiError(httpStatus.CONFLICT, 'This email already exits');
+	}
+
+	const role = await roleService.getRoleById(roleId);
+
+	if (!role) {
+		throw new ApiError(httpStatus.NOT_FOUND, 'Role not found');
+	}
+
+	const createdUser = await db.user
+		.create({
+			name,
+			email,
+			role_id: roleId,
+			password: hashedPassword,
+		})
+		.then((resultEntity) => resultEntity.get({ plain: true }));
+
+	return createdUser;
 }
 
-async function getUsers(req, queries) {
-	let { page, limit } = config.pagination;
-	let conditions = 'u.id IS NOT NULL';
-
-	Object.keys(queries).forEach((key) => {
-		switch (key) {
-			case 'page':
-				page = queries[key];
-				break;
-			case 'limit':
-				limit = queries[key];
-				break;
-			case 'email':
-			case 'name':
-				conditions += ` AND ${key} LIKE '%${queries[key]}%'`;
-				break;
-			default:
-		}
-	});
-
-	if (queries.sortBy) {
-		conditions += ` ORDER BY ${queries.sortBy}, created_date_time DESC, modified_date_time DESC`;
-	} else {
-		conditions += ` ORDER BY created_date_time DESC, modified_date_time DESC`;
-	}
+async function getUsers(req) {
+	const { page: defaultPage, limit: defaultLimit } = config.pagination;
+	const { page = defaultPage, limit = defaultLimit } = req.query;
 
 	const offset = getOffset(page, limit);
-	const query = `
-		SELECT u.id, u.name, u.email, u.created_date_time, u.modified_date_time, r.name as role
-		FROM "user" u
-		INNER JOIN "role" r ON r.id = u.role_id
-		WHERE ${conditions} LIMIT ${limit} OFFSET ${offset};`;
 
-	const users = await generateQuery(req, query);
+	const users = await db.user.findAndCountAll({
+		order: [
+			['name', 'ASC'],
+			['created_date_time', 'DESC'],
+			['modified_date_time', 'DESC'],
+		],
+		include: [
+			{
+				model: db.role,
+				require: true,
+				attributes: ['id', 'name'],
+			},
+		],
+		attributes: [
+			'id',
+			'name',
+			'email',
+			'created_date_time',
+			'modified_date_time',
+		],
+		offset,
+		limit,
+		raw: true,
+	});
 
 	return users;
 }
 
-async function deleteUserById(req, userId) {
-	// eslint-disable-next-line eqeqeq
-	if (req.user.id == userId) {
-		throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
-	}
+async function deleteUserById(userId) {
+	const deletedUser = await db.user.destroy({
+		where: { id: userId },
+	});
 
-	const user = await getUserById(req, userId);
-	if (!user) {
+	if (!deletedUser) {
 		throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
 	}
 
-	const query = `DELETE FROM "user" where id = '${userId}' returning id;`;
-	const deletedUser = await generateQuery(req, query);
-
-	return deletedUser[0];
+	return deletedUser;
 }
 
-async function updateUser(req, reqBody) {
-	let hashedPassword = '';
-	if (reqBody.password) {
-		hashedPassword = await encryptData(reqBody.password);
-	}
-	if (!hashedPassword) {
-		throw new ApiError(
-			httpStatus.INTERNAL_SERVER_ERROR,
-			'Internal Server Error'
-		);
-	}
+async function updateUser(req) {
+	const { password, email } = req.body;
 
-	const set = [];
-	Object.keys(reqBody).forEach((key) => {
-		let value = reqBody[key];
-		if (key === 'password') {
-			value = hashedPassword;
+	if (password) {
+		const hashedPassword = await encryptData(password);
+
+		if (!hashedPassword) {
+			throw new ApiError(
+				httpStatus.INTERNAL_SERVER_ERROR,
+				'Internal Server Error'
+			);
 		}
-		set.push(`${key} = '${value}'`);
-	});
-	const query = `UPDATE "user" SET ${set.join(' , ')} WHERE id = '${
-		req.params.userId || reqBody.id
-	}' RETURNING *;`;
-	const user = await generateQuery(req, query);
 
-	return { ...reqBody, id: user[0].id };
+		req.body.password = hashedPassword;
+	}
+
+	if (email) {
+		const existedUser = await getUserByEmail(email);
+
+		if (existedUser) {
+			throw new ApiError(
+				httpStatus.CONFLICT,
+				'This email is already exist'
+			);
+		}
+	}
+
+	const updatedUser = await db.user
+		.update(
+			{ ...req.body },
+			{
+				where: { id: req.params.userId || req.body.id },
+				returning: true,
+				plain: true,
+				raw: true,
+			}
+		)
+		.then((data) => data[1]);
+
+	return updatedUser;
 }
 
 module.exports = {

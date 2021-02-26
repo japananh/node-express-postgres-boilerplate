@@ -9,7 +9,6 @@ const createRole = {
 
 const getRoles = {
 	query: Joi.object().keys({
-		sortBy: Joi.string().valid('name'),
 		limit: Joi.number().min(1),
 		page: Joi.number().min(1),
 	}),
@@ -17,13 +16,13 @@ const getRoles = {
 
 const getRole = {
 	params: Joi.object().keys({
-		roleId: Joi.string(),
+		roleId: Joi.number().required(),
 	}),
 };
 
 const updateRole = {
 	params: Joi.object().keys({
-		roleId: Joi.required(),
+		roleId: Joi.string().required(),
 	}),
 	body: Joi.object()
 		.keys({

@@ -23,6 +23,7 @@
     "api",
     "express",
     "postgres",
+    "sequelize",
     "joi",
     "eslint",
     "prettier",
