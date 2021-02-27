@@ -26,6 +26,11 @@ This boilerplate comes with a collection of npm scripts to make your life easier
 src\
  |--config\         # Environment variables and configuration related things
  |--controllers\    # Route controllers (controller layer)
+ |--db\
+  |--config\        # Configuration for database
+  |--migrations\    # Database migrations
+  |--models\        # Database models
+  |--seeders\       #
  |--docs\           # Swagger files
  |--middlewares\    # Custom express middlewares
  |--routes\         # Routes
@@ -63,6 +68,22 @@ List of available routes:
 `GET /v1/roles/:roleId` - get a role\
 `PATCH /v1/roles/:roleId` - update a role\
 `DELETE /v1/roles/:roleId` - delete a role
+
+## Database
+
+This app uses [Sequelize](https://sequelize.org/) - an **Object-Relational Mapper** to maps object syntax into Postgres database, and [Sequelize CLI](https://github.com/sequelize/cli) package to manage sequelize.
+
+There are 2 ways to run `sequelize-cli`.
+
+```bash
+# Method 1: Use sequelize global
+npm install -g sequelize-cli
+
+sequelize db:migrate
+
+# Method 2
+node_modules/.bin/sequelize db:migrate
+```
 
 ## Error Handling
 
