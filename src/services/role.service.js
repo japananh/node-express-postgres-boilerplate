@@ -2,7 +2,7 @@ const httpStatus = require('http-status');
 const { getOffset } = require('../utils/query');
 const ApiError = require('../utils/ApiError');
 const config = require('../config/config.js');
-const db = require('../models');
+const db = require('../db/models');
 
 async function getRoleById(roleId) {
 	const role = await db.role.findOne({
