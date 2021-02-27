@@ -1,9 +1,13 @@
 const http = require('http');
 const app = require('./app');
-
-const server = http.Server(app);
+const models = require('./models');
 const config = require('./config/config');
 const logger = require('./config/logger');
+
+// sync database
+models.sequelize.sync();
+
+const server = http.Server(app);
 
 const port = config.port || 3000;
 server.listen(port, () => {

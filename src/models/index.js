@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
 
-const config = require('../config/config');
+const config = require(`${__dirname}/../config/config`);
 
 const basename = path.basename(module.filename);
 
