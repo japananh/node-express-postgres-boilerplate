@@ -6,7 +6,7 @@ This is a boilerplate application for building REST APIs in Node.js using ES6, E
 
 ### Installation
 
-1. Clone the repository with `https://gitlab.com/trungnq89/nodejs-api.git`
+1. Clone the repository with `https://github.com/japananh/node-express-postgres-boilerplate.git`
 2. Install the dependencies with `yarn install` (click here if [you don't have Yarn installed](https://yarnpkg.com/getting-started/install)
 3. Setup the database on `src/config/postgres.js` and config information on `env.example`
 
