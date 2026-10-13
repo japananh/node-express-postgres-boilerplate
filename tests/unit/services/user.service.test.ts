@@ -19,6 +19,9 @@ const mockUser = User as unknown as Record<
 >;
 const mockRole = Role as unknown as Record<'findOne', jest.Mock>;
 
+// What Model.update({ returning: true }) resolves to: [count, instances].
+const row = (values: object) => ({ get: () => values });
+
 describe('user.service', () => {
 	beforeEach(() => jest.resetAllMocks());
 
@@ -109,7 +112,7 @@ describe('user.service', () => {
 
 	describe('updateUser', () => {
 		it('hashes the password before saving', async () => {
-			mockUser.update.mockResolvedValue([1, { id: 3 }]);
+			mockUser.update.mockResolvedValue([1, [row({ id: 3 })]]);
 			const req = {
 				params: { userId: '3' },
 				body: { password: 'password1' },
@@ -121,7 +124,7 @@ describe('user.service', () => {
 		});
 
 		it('targets body.id when there is no route param (reset-password)', async () => {
-			mockUser.update.mockResolvedValue([1, { id: 8 }]);
+			mockUser.update.mockResolvedValue([1, [row({ id: 8 })]]);
 			await userService.updateUser({
 				params: {},
 				body: { id: 8, name: 'x' },
@@ -141,13 +144,23 @@ describe('user.service', () => {
 		});
 
 		it('returns the updated row', async () => {
-			mockUser.update.mockResolvedValue([1, { id: 3, name: 'n' }]);
+			mockUser.update.mockResolvedValue([1, [row({ id: 3, name: 'n' })]]);
 			await expect(
 				userService.updateUser({
 					params: { userId: '3' },
 					body: { name: 'n' },
 				})
 			).resolves.toEqual({ id: 3, name: 'n' });
+		});
+
+		it('returns undefined when no row matches', async () => {
+			mockUser.update.mockResolvedValue([0, []]);
+			await expect(
+				userService.updateUser({
+					params: { userId: '3' },
+					body: { name: 'n' },
+				})
+			).resolves.toBeUndefined();
 		});
 	});
 });

@@ -16,6 +16,9 @@ const mockRole = Role as unknown as Record<
 	jest.Mock
 >;
 
+// What Model.update({ returning: true }) resolves to: [count, instances].
+const row = (values: object) => ({ get: () => values });
+
 describe('role.service', () => {
 	beforeEach(() => jest.resetAllMocks());
 
@@ -73,7 +76,7 @@ describe('role.service', () => {
 	});
 
 	it('updateRole returns the updated row', async () => {
-		mockRole.update.mockResolvedValue([1, { id: 2, name: 'b' }]);
+		mockRole.update.mockResolvedValue([1, [row({ id: 2, name: 'b' })]]);
 		const req = { params: { roleId: '2' }, body: { name: 'b' } };
 		await expect(roleService.updateRole(req)).resolves.toEqual({
 			id: 2,
@@ -83,6 +86,12 @@ describe('role.service', () => {
 			{ name: 'b' },
 			expect.objectContaining({ where: { id: '2' }, returning: true })
 		);
+	});
+
+	it('updateRole returns undefined when no row matches', async () => {
+		mockRole.update.mockResolvedValue([0, []]);
+		const req = { params: { roleId: '9' }, body: { name: 'b' } };
+		await expect(roleService.updateRole(req)).resolves.toBeUndefined();
 	});
 
 	describe('deleteRoleById', () => {

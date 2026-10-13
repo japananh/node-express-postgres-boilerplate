@@ -1,4 +1,4 @@
-import type { CustomHelpers } from '@hapi/joi';
+import Joi, { CustomHelpers } from '@hapi/joi';
 
 const password = (value: string, helpers: CustomHelpers) => {
 	if (value.length < 8) {
@@ -14,4 +14,7 @@ const password = (value: string, helpers: CustomHelpers) => {
 	return value;
 };
 
-export { password };
+// Bounded to Postgres `integer`; anything larger is a driver error, not a 404.
+const idParam = Joi.number().integer().min(1).max(2147483647).required();
+
+export { password, idParam };

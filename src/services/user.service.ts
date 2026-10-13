@@ -152,18 +152,15 @@ async function updateUser(req: {
 		}
 	}
 
-	const updatedUser = await User.update(
+	const [, rows] = await User.update(
 		{ ...req.body },
 		{
 			where: { id: (req.params.userId || req.body.id)! },
 			returning: true,
-			// @ts-expect-error `plain`/`raw` are passed through to the query but not typed for update()
-			plain: true,
-			raw: true,
 		}
-	).then((data) => data[1] as unknown as UserRow | undefined);
+	);
 
-	return updatedUser;
+	return rows[0]?.get({ plain: true }) as UserRow | undefined;
 }
 
 export {

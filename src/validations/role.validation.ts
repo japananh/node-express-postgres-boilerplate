@@ -1,4 +1,5 @@
 import Joi from '@hapi/joi';
+import { idParam } from './custom.validation';
 
 const createRole = {
 	body: Joi.object().keys({
@@ -16,13 +17,13 @@ const getRoles = {
 
 const getRole = {
 	params: Joi.object().keys({
-		roleId: Joi.number().required(),
+		roleId: idParam,
 	}),
 };
 
 const updateRole = {
 	params: Joi.object().keys({
-		roleId: Joi.string().required(),
+		roleId: idParam,
 	}),
 	body: Joi.object()
 		.keys({
@@ -34,7 +35,7 @@ const updateRole = {
 
 const deleteRole = {
 	params: Joi.object().keys({
-		roleId: Joi.string(),
+		roleId: idParam,
 	}),
 };
 

@@ -141,6 +141,33 @@ describe('Role routes', () => {
 			});
 		});
 
+		it('returns 404 for a missing role', async () => {
+			await request(app)
+				.patch('/v1/roles/999')
+				.set('Authorization', bearer(admin.tokens))
+				.send({ description: 'updated' })
+				.expect(httpStatus.NOT_FOUND);
+		});
+
+		it('returns 400 for a non-numeric id', async () => {
+			await request(app)
+				.patch('/v1/roles/abc')
+				.set('Authorization', bearer(admin.tokens))
+				.send({ description: 'updated' })
+				.expect(httpStatus.BAD_REQUEST);
+		});
+
+		it.each([
+			['an empty body', {}],
+			['an unknown field', { colour: 'red' }],
+		])('returns 400 for %s', async (_label, body) => {
+			await request(app)
+				.patch('/v1/roles/2')
+				.set('Authorization', bearer(admin.tokens))
+				.send(body)
+				.expect(httpStatus.BAD_REQUEST);
+		});
+
 		it('returns 403 for a regular user', async () => {
 			await request(app)
 				.patch('/v1/roles/2')
@@ -178,6 +205,13 @@ describe('Role routes', () => {
 				.delete('/v1/roles/999')
 				.set('Authorization', bearer(admin.tokens))
 				.expect(httpStatus.NOT_FOUND);
+		});
+
+		it('returns 400 for a non-numeric id', async () => {
+			await request(app)
+				.delete('/v1/roles/abc')
+				.set('Authorization', bearer(admin.tokens))
+				.expect(httpStatus.BAD_REQUEST);
 		});
 
 		it('returns 403 for a regular user', async () => {

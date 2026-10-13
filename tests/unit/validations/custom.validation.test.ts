@@ -1,5 +1,5 @@
 import type { CustomHelpers } from '@hapi/joi';
-import { password } from '../../../src/validations/custom.validation';
+import { password, idParam } from '../../../src/validations/custom.validation';
 
 describe('password validation', () => {
 	const message = jest.fn((msg: { custom: string }) => msg.custom);
@@ -22,4 +22,17 @@ describe('password validation', () => {
 			'password must contain at least 1 letter and 1 number'
 		);
 	});
+});
+
+describe('idParam', () => {
+	it.each(['1', 7, '2147483647'])('accepts %s', (value) => {
+		expect(idParam.validate(value).error).toBeUndefined();
+	});
+
+	it.each(['abc', '0', '-1', '1.5', '2147483648', undefined])(
+		'rejects %s',
+		(value) => {
+			expect(idParam.validate(value).error).toBeDefined();
+		}
+	);
 });

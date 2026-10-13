@@ -50,6 +50,9 @@ const updateRole = catchAsync(
 		res
 	) => {
 		const role = await roleService.updateRole(req);
+		if (!role) {
+			throw new ApiError(httpStatus.NOT_FOUND, 'Role not found');
+		}
 		res.send({ role });
 	}
 );

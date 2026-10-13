@@ -30,7 +30,7 @@ router
 	)
 	.patch(
 		grantAccess('updateAny', resources.ROLE),
-		validate(),
+		validate(roleValidation.updateRole),
 		roleController.updateRole
 	)
 	.delete(

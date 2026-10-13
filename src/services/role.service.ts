@@ -67,21 +67,18 @@ async function createRole(req: { body: RoleBody }) {
 }
 
 async function updateRole(req: {
-	params: { roleId: string };
+	params: { roleId: number | string };
 	body: Partial<RoleBody>;
 }) {
-	const updatedRole = await Role.update(
+	const [, rows] = await Role.update(
 		{ ...req.body },
 		{
 			where: { id: req.params.roleId },
 			returning: true,
-			// @ts-expect-error `plain`/`raw` are passed through to the query but not typed for update()
-			plain: true,
-			raw: true,
 		}
-	).then((data) => data[1] as unknown as Role | undefined);
+	);
 
-	return updatedRole;
+	return rows[0]?.get({ plain: true });
 }
 
 async function deleteRoleById(roleId: number | string) {
