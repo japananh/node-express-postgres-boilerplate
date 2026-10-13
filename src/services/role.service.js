@@ -74,9 +74,22 @@ async function updateRole(req) {
 	return updatedRole;
 }
 
+async function deleteRoleById(roleId) {
+	const deletedRole = await db.role.destroy({
+		where: { id: roleId },
+	});
+
+	if (!deletedRole) {
+		throw new ApiError(httpStatus.NOT_FOUND, 'Role not found');
+	}
+
+	return deletedRole;
+}
+
 module.exports = {
 	getRoleById,
 	getRoles,
 	createRole,
 	updateRole,
+	deleteRoleById,
 };

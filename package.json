@@ -4,7 +4,12 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --runInBand",
+    "test:unit": "jest --selectProjects unit",
+    "test:integration": "jest --selectProjects integration --runInBand",
+    "test:coverage": "jest --runInBand --coverage",
+    "test:db:up": "docker compose up -d --wait db-test",
+    "test:db:down": "docker compose down -v",
     "version": "update-changelog && git add CHANGELOG.md",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -70,9 +75,11 @@
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.3.1",
+    "jest": "^29.7.0",
     "nodemon": "^2.0.7",
     "prettier": "^2.2.1",
     "sequelize-cli": "^6.2.0",
+    "supertest": "^7.0.0",
     "update-changelog": "^1.0.2"
   }
 }

@@ -6,6 +6,7 @@ const {
 	emailService,
 	tokenService,
 } = require('../services');
+const ApiError = require('../utils/ApiError');
 const { verifyToken } = require('../utils/auth');
 
 const register = catchAsync(async (req, res) => {
@@ -48,8 +49,17 @@ const forgotPassword = catchAsync(async (req, res) => {
 });
 
 const resetPassword = catchAsync(async (req, res) => {
-	const { id } = await verifyToken(req.query.token);
-	req.body.id = id;
+	let payload;
+	try {
+		payload = await verifyToken(req.query.token);
+	} catch (error) {
+		throw new ApiError(httpStatus.UNAUTHORIZED, 'Password reset failed');
+	}
+	// Reset tokens carry `id`; access/refresh tokens carry `userId` and must not reset passwords.
+	if (!payload.id) {
+		throw new ApiError(httpStatus.UNAUTHORIZED, 'Password reset failed');
+	}
+	req.body.id = payload.id;
 	await userService.updateUser(req);
 	res.send({ success: true });
 });

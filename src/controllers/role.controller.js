@@ -22,7 +22,7 @@ const getRole = catchAsync(async (req, res) => {
 });
 
 const deleteRole = catchAsync(async (req, res) => {
-	await roleService.deleteRoleById(req);
+	await roleService.deleteRoleById(req.params.roleId);
 	res.send({ success: true });
 });
 

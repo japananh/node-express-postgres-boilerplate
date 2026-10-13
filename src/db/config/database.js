@@ -1,2 +1,5 @@
-// This file exists because Sequelize only support import config as a string path, not an object
-module.exports = require('../../config/config').sqlDB;
+const { sqlDB } = require('../../config/config');
+
+// Exists because sequelize-cli only accepts a config path, not an object.
+// It reads `username`, not `user`, and otherwise falls back to the OS user.
+module.exports = { ...sqlDB, username: sqlDB.user };
