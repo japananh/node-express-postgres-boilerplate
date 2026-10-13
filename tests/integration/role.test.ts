@@ -141,6 +141,22 @@ describe('Role routes', () => {
 			});
 		});
 
+		it('returns 409 when renaming to an existing name', async () => {
+			await request(app)
+				.patch('/v1/roles/2')
+				.set('Authorization', bearer(admin.tokens))
+				.send({ name: 'admin' })
+				.expect(httpStatus.CONFLICT);
+		});
+
+		it('lets a role keep its own name', async () => {
+			await request(app)
+				.patch('/v1/roles/2')
+				.set('Authorization', bearer(admin.tokens))
+				.send({ name: 'user', description: 'same name' })
+				.expect(httpStatus.OK);
+		});
+
 		it('returns 404 for a missing role', async () => {
 			await request(app)
 				.patch('/v1/roles/999')
@@ -198,6 +214,17 @@ describe('Role routes', () => {
 				.get(`/v1/roles/${temp.id}`)
 				.set('Authorization', bearer(admin.tokens))
 				.expect(httpStatus.NOT_FOUND);
+		});
+
+		it('returns 409 while users still have the role', async () => {
+			await request(app)
+				.delete('/v1/roles/2')
+				.set('Authorization', bearer(admin.tokens))
+				.expect(httpStatus.CONFLICT);
+			await request(app)
+				.get(`/v1/users/${regular.user.id}`)
+				.set('Authorization', bearer(admin.tokens))
+				.expect(httpStatus.OK);
 		});
 
 		it('returns 404 for a missing role', async () => {

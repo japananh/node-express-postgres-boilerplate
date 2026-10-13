@@ -8,7 +8,7 @@ interface Seeder {
 }
 /* eslint-disable @typescript-eslint/no-var-requires */
 const roleSeeder: Seeder = require('../../src/db/seeders/20210227143959-demo-role');
-const userSeeder: Seeder = require('../../src/db/seeders/20210227143330-demo-user');
+const userSeeder: Seeder = require('../../src/db/seeders/20210227144500-demo-user');
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 const db = { sequelize, role: Role, user: User };

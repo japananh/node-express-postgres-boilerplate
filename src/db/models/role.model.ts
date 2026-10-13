@@ -31,6 +31,7 @@ function initRole(sequelize: Sequelize) {
 			name: {
 				type: DataTypes.STRING,
 				allowNull: false,
+				unique: true,
 			},
 			description: {
 				type: DataTypes.STRING,

@@ -12,14 +12,15 @@ const sequelize = new Sequelize({
 initRole(sequelize);
 initUser(sequelize);
 
+// Matches the migrated schema: a role that still has users cannot be deleted.
 Role.hasMany(User, {
-	foreignKey: 'id',
-	onDelete: 'CASCADE',
+	foreignKey: 'role_id',
+	onDelete: 'NO ACTION',
 });
 
 User.belongsTo(Role, {
 	foreignKey: 'role_id',
-	onDelete: 'CASCADE',
+	onDelete: 'NO ACTION',
 });
 
 export { sequelize, Role, User };

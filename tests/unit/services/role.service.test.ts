@@ -8,6 +8,7 @@ jest.mock('../../../src/db/models', () => ({
 	},
 }));
 
+import { ForeignKeyConstraintError, UniqueConstraintError } from 'sequelize';
 import { Role } from '../../../src/db/models';
 import * as roleService from '../../../src/services/role.service';
 
@@ -94,7 +95,51 @@ describe('role.service', () => {
 		await expect(roleService.updateRole(req)).resolves.toBeUndefined();
 	});
 
+	describe('updateRole name conflicts', () => {
+		const req = { params: { roleId: '2' }, body: { name: 'admin' } };
+
+		it('throws 409 when another role has the name', async () => {
+			mockRole.findOne.mockResolvedValue({ id: 1 });
+			await expect(roleService.updateRole(req)).rejects.toMatchObject({
+				statusCode: 409,
+			});
+			expect(mockRole.update).not.toHaveBeenCalled();
+		});
+
+		it('allows re-saving the same name on the same role', async () => {
+			mockRole.findOne.mockResolvedValue({ id: 2 });
+			mockRole.update.mockResolvedValue([1, [row({ id: 2 })]]);
+			await expect(roleService.updateRole(req)).resolves.toEqual({
+				id: 2,
+			});
+		});
+	});
+
+	describe('createRole race', () => {
+		it('maps a unique violation to 409', async () => {
+			mockRole.findOne.mockResolvedValue(null);
+			mockRole.create.mockRejectedValue(new UniqueConstraintError({}));
+			await expect(
+				roleService.createRole({ body: { name: 'a' } })
+			).rejects.toMatchObject({ statusCode: 409 });
+		});
+	});
+
 	describe('deleteRoleById', () => {
+		it('maps a foreign key violation to 409', async () => {
+			mockRole.destroy.mockRejectedValue(
+				new ForeignKeyConstraintError({})
+			);
+			await expect(roleService.deleteRoleById(2)).rejects.toMatchObject({
+				statusCode: 409,
+			});
+		});
+
+		it('rethrows other database errors', async () => {
+			mockRole.destroy.mockRejectedValue(new Error('boom'));
+			await expect(roleService.deleteRoleById(2)).rejects.toThrow('boom');
+		});
+
 		it('returns the deleted count', async () => {
 			mockRole.destroy.mockResolvedValue(1);
 			await expect(roleService.deleteRoleById(2)).resolves.toBe(1);

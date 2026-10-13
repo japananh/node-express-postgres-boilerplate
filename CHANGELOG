@@ -14,9 +14,12 @@ straightforward as possible.
 - Jest and supertest: unit tests and integration tests (auth, user, role) against Postgres, `npm test` / `npm run test:coverage`, `docker-compose.yml` for the test database and a GitHub Actions workflow
 - `POST /v1/auth/refresh-tokens` ([#2](https://github.com/japananh/node-express-postgres-boilerplate/issues/2))
 - `SQL_PORT` environment variable
+- Migration `add-role-constraints`: foreign key `user.role_id` -> `role.id` and unique `role.name`, as in the removed flyway baseline. **Upgrade note:** it fails if existing rows already violate them (duplicate role names, users with an unknown role)
 - `.nvmrc` (Node 26)
 
 ### Changed
+- `DELETE /v1/roles/:roleId` answers 409 while users still have the role; `PATCH`/`POST /v1/roles` answer 409 for a duplicate name
+- The demo user seeder is renamed (`20210227144500-demo-user`) so `db:seed:all` seeds the role first
 - `npm start` runs the compiled `dist/index.js`; `npm run dev` uses `tsx watch` instead of nodemon
 - ESLint uses `@typescript-eslint` (ESLint 8, `eslint-config-airbnb-base` 15); tests run through `ts-jest`
 - Require Node >= 26 (`.nvmrc` 26); bump `jsonwebtoken` to 9 and `express-jwt` to 8 (Node 25+ removed `SlowBuffer`, which the old `jsonwebtoken` needs), `sequelize` to 6.37 and `prettier` to 2.8
