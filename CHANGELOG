@@ -10,14 +10,22 @@ Here we write upgrading notes for brands. It's a team effort to make them as
 straightforward as possible.
  
 ### Added
-- [PROJECTNAME-XXXX](http://tickets.projectname.com/browse/PROJECTNAME-XXXX)
-  MINOR Ticket title goes here.
-- [PROJECTNAME-YYYY](http://tickets.projectname.com/browse/PROJECTNAME-YYYY)
-  PATCH Ticket title goes here.
- 
+- Jest and supertest: unit tests and integration tests (auth, user, role) against Postgres, `npm test` / `npm run test:coverage`, `docker-compose.yml` for the test database and a GitHub Actions workflow
+- `POST /v1/auth/refresh-tokens` ([#2](https://github.com/japananh/node-express-postgres-boilerplate/issues/2))
+- `SQL_PORT` environment variable
+- `.nvmrc` (Node 22)
+
 ### Changed
- 
+- Require Node >= 18
+- Remove the unused `flyway/` folder ([#1](https://github.com/japananh/node-express-postgres-boilerplate/issues/1)); the schema lives in the Sequelize migrations
+
 ### Fixed
+- Unauthenticated requests returned 500 instead of 401
+- `DELETE /v1/roles/:roleId` returned 500 (missing `deleteRoleById`)
+- Login with an unknown email returned 500 instead of 401
+- `POST /v1/auth/reset-password` returned 500 for an invalid token and accepted access tokens
+- `sequelize-cli` ignored `SQL_USERNAME` and used the OS user
+- Demo role seeder violated `modified_date_time NOT NULL`
 
 ## [1.0.0] - 2021-02-27
 

@@ -19,6 +19,27 @@ This boilerplate comes with a collection of npm scripts to make your life easier
 -   `lint:fix`: Fix ESLint errors
 -   `prettier`: Run prettier
 -   `prettier:fix`: Fix prettier errors
+-   `test`: Run unit and integration tests (needs Postgres, see [Testing](#testing))
+-   `test:unit`: Run unit tests only (no database needed)
+-   `test:integration`: Run integration tests only
+-   `test:coverage`: Run all tests with a coverage report in `coverage/`
+-   `test:db:up` / `test:db:down`: Start / remove the throwaway test Postgres
+
+## Testing
+
+Tests use [Jest](https://jestjs.io/) and [supertest](https://github.com/ladjs/supertest).
+
+-   `tests/unit`: services, utils, middlewares and validations; the database is mocked.
+-   `tests/integration`: auth, user and role routes against a real Postgres. Before each run the schema is rebuilt from the Sequelize migrations, and before each test the tables are truncated and the seeders re-run.
+
+```bash
+yarn test:db:up      # Postgres 16 in Docker on localhost:54329 (user/password/db: test)
+yarn test            # unit + integration
+yarn test:coverage   # same, with coverage
+yarn test:db:down    # remove the container and its data
+```
+
+The defaults in `tests/helpers/env.js` match `docker-compose.yml`. To use another Postgres, set `SQL_HOST`, `SQL_PORT`, `SQL_USERNAME`, `SQL_PASSWORD` and `SQL_DATABASE_NAME`; the database name must contain `test`, because the suite truncates its tables. No `.env` file is needed. GitHub Actions runs lint and the full suite against a Postgres service (`.github/workflows/test.yml`).
 
 ## Project Structure
 
@@ -39,6 +60,10 @@ src\
  |--validations\    # Request data validation schemas
  |--app.js          # Express app
  |--index.js        # App entry point
+tests\
+ |--unit\           # Unit tests (mocked database)
+ |--integration\    # Route tests against a real Postgres
+ |--helpers\        # Env defaults, DB setup, factories
 ```
 
 ## API Documentation
@@ -233,5 +258,5 @@ To be updated
 -   [x] Rewrite README using this sample [template](https://github.com/talyssonoc/node-api-boilerplate)
 -   [x] Handle postgres with [Squelize](https://www.npmjs.com/package/sequelize)
 -   [x] Update CHANGELOG
--   [ ] Add test
+-   [x] Add test
 -   [ ] Refactor code use Typescript
