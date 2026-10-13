@@ -1,6 +1,6 @@
 # Nodejs Express base API
 
-This is a boilerplate application for building REST APIs in Node.js using ES6, Express and PostgreSQL.
+This is a boilerplate application for building REST APIs in Node.js using TypeScript, Express and PostgreSQL.
 
 ## Getting Started
 
@@ -8,17 +8,20 @@ This is a boilerplate application for building REST APIs in Node.js using ES6, E
 
 1. Clone the repository with `https://github.com/japananh/node-express-postgres-boilerplate.git`
 2. Install the dependencies with `yarn install` (click here if [you don't have Yarn installed](https://yarnpkg.com/getting-started/install)
-3. Setup the database on `src/config/postgres.js` and config information on `env.example`
+3. Setup the database and the other settings in `.env` (see `.env.example`)
+4. Use Node 26 (`.nvmrc`), then `yarn dev` for development or `yarn build && yarn start` for the compiled app
 
 ### Scripts
 
 This boilerplate comes with a collection of npm scripts to make your life easier, you'll run them with `npm run <script name>` or `yarn <script name>`:
 
--   `dev`: Run the application in development mode
--   `lint`: Run ESLint
+-   `dev`: Run the application in development mode (`tsx watch`, restarts on change)
+-   `build`: Compile `src/` to `dist/` with `tsc` and copy the Swagger YAML
+-   `start`: Run the compiled app (`node dist/index.js`); run `build` first
+-   `typecheck`: Type-check `src/` and `tests/` without emitting
+-   `lint`: Run ESLint (`@typescript-eslint` + Airbnb + Prettier)
 -   `lint:fix`: Fix ESLint errors
--   `prettier`: Run prettier
--   `prettier:fix`: Fix prettier errors
+-   `prettier`: Check formatting with Prettier
 -   `test`: Run unit and integration tests (needs Postgres, see [Testing](#testing))
 -   `test:unit`: Run unit tests only (no database needed)
 -   `test:integration`: Run integration tests only
@@ -39,7 +42,7 @@ yarn test:coverage   # same, with coverage
 yarn test:db:down    # remove the container and its data
 ```
 
-The defaults in `tests/helpers/env.js` match `docker-compose.yml`. To use another Postgres, set `SQL_HOST`, `SQL_PORT`, `SQL_USERNAME`, `SQL_PASSWORD` and `SQL_DATABASE_NAME`; the database name must contain `test`, because the suite truncates its tables. No `.env` file is needed. GitHub Actions runs lint and the full suite against a Postgres service (`.github/workflows/test.yml`).
+The defaults in `tests/helpers/env.ts` match `docker-compose.yml`. To use another Postgres, set `SQL_HOST`, `SQL_PORT`, `SQL_USERNAME`, `SQL_PASSWORD` and `SQL_DATABASE_NAME`; the database name must contain `test`, because the suite truncates its tables. No `.env` file is needed. GitHub Actions runs lint and the full suite against a Postgres service (`.github/workflows/test.yml`).
 
 ## Project Structure
 
@@ -49,17 +52,18 @@ src\
  |--controllers\    # Route controllers (controller layer)
  |--db\
   |--config\        # Configuration for database
-  |--migrations\    # Database migrations
-  |--models\        # Database models
-  |--seeders\       #
+  |--migrations\    # Database migrations (plain JS, run by sequelize-cli)
+  |--models\        # Typed Sequelize models
+  |--seeders\       # Seeders (plain JS, run by sequelize-cli)
  |--docs\           # Swagger files
  |--middlewares\    # Custom express middlewares
  |--routes\         # Routes
  |--services\       # Business logic (service layer)
  |--utils\          # Utility classes and functions
  |--validations\    # Request data validation schemas
- |--app.js          # Express app
- |--index.js        # App entry point
+ |--types\          # Type declarations (Express request augmentation)
+ |--app.ts          # Express app
+ |--index.ts        # App entry point
 tests\
  |--unit\           # Unit tests (mocked database)
  |--integration\    # Route tests against a real Postgres
@@ -111,6 +115,8 @@ sequelize db:migrate
 node_modules/.bin/sequelize db:migrate
 ```
 
+Migrations and seeders stay plain JavaScript because `sequelize-cli` cannot load TypeScript. For the same reason `src/db/config/database.js` reads the `SQL_*` variables itself instead of importing `src/config/config.ts`.
+
 ## Error Handling
 
 The app has a centralized error handling mechanism.
@@ -118,7 +124,7 @@ The app has a centralized error handling mechanism.
 Controllers should try to catch the errors and forward them to the error handling middleware (by calling `next(error)`). For convenience, you can also wrap the controller inside the catchAsync utility wrapper, which forwards the error.
 
 ```javascript
-const catchAsync = require('../utils/catchAsync');
+import catchAsync from '../utils/catchAsync';
 
 const controller = catchAsync(async (req, res) => {
 	// this error will be forwarded to the error handling middleware
@@ -141,10 +147,10 @@ The app has a utility ApiError class to which you can attach a response code and
 
 For example, if you are trying to get a user from the DB who is not found, and you want to send a 404 error, the code should look something like:
 
-```javascript
-// user.controller.js
-const httpStatus = require('http-status');
-const ApiError = require('../utils/ApiError');
+```typescript
+// user.controller.ts
+import httpStatus from 'http-status';
+import ApiError from '../utils/ApiError';
 
 const getUser = catchAsync(async (req, res) => {
 	const user = await userService.getUserById(req.params.userId);
@@ -163,11 +169,11 @@ Request data is validated using [Joi](https://hapi.dev/family/joi/). Check the [
 
 The validation schemas are defined in the `src/validations` directory and are used in the routes by providing them as parameters to the `validate` middleware.
 
-```javascript
-const express = require('express');
-const validate = require('../../middlewares/validate');
-const userValidation = require('../../validations/user.validation');
-const userController = require('../../controllers/user.controller');
+```typescript
+import express from 'express';
+import validate from '../../middlewares/validate';
+import * as userValidation from '../../validations/user.validation';
+import * as userController from '../../controllers/user.controller';
 
 const router = express.Router();
 
@@ -182,9 +188,9 @@ router.post(
 
 To require authentication for certain routes, you can use `jwt` function at `config` folder
 
-```javascript
-// app.js
-const jwt = require('./config/jwt');
+```typescript
+// app.ts
+import jwt from './config/jwt';
 
 app.use(jwt());
 ```
@@ -195,12 +201,12 @@ These routes require a valid JWT access token in the Authorization request heade
 
 The `auth` middleware is used to require certain rights/permissions to access a route.
 
-```javascript
-const express = require('express');
-const { grantAccess } = require('../../middlewares/validateAccessControl');
-const validate = require('../../middlewares/validate');
-const userValidation = require('../../validations/user.validation');
-const userController = require('../../controllers/user.controller');
+```typescript
+import express from 'express';
+import { grantAccess } from '../../middlewares/validateAccessControl';
+import validate from '../../middlewares/validate';
+import * as userValidation from '../../validations/user.validation';
+import * as userController from '../../controllers/user.controller';
 
 const router = express.Router();
 
@@ -215,18 +221,18 @@ router
 
 In the example above, an authenticated user can access this route only if that user has the `getUsers` permission.
 
-The permissions are role-based. You can view the permissions/rights of each role in the `src/config/roles.js` file.
+The permissions are role-based. You can view the permissions/rights of each role in the `src/config/roles.ts` file.
 
 If the user making the request does not have the required permissions to access this route, a Forbidden (403) error is thrown.
 
 ## Logging
 
-Import the logger from `src/utils/logger.js`. It is using the [Winston](https://github.com/winstonjs/winston) logging library.
+Import the logger from `src/config/logger.ts`. It is using the [Winston](https://github.com/winstonjs/winston) logging library.
 
 Logging should be done according to the following severity levels (ascending order from most important to least important):
 
-```javascript
-const logger = require('<path to src>/utils/logger');
+```typescript
+import logger from '<path to src>/config/logger';
 
 logger.error('message'); // level 0
 logger.warn('message'); // level 1
@@ -259,4 +265,4 @@ To be updated
 -   [x] Handle postgres with [Squelize](https://www.npmjs.com/package/sequelize)
 -   [x] Update CHANGELOG
 -   [x] Add test
--   [ ] Refactor code use Typescript
+-   [x] Refactor code use Typescript
