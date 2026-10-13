@@ -27,6 +27,15 @@ const login = catchAsync(async (req, res) => {
 	res.send({ user, tokens });
 });
 
+const refreshTokens = catchAsync(async (req, res) => {
+	const user = await authService.refreshAuth(req.body.refreshToken);
+	const tokens = await tokenService.generateAuthTokens({
+		userId: user.id,
+		roleId: user.role_id,
+	});
+	res.send(tokens);
+});
+
 const forgotPassword = catchAsync(async (req, res) => {
 	const resetPasswordToken = await tokenService.generateResetPasswordToken(
 		req.body.email
@@ -48,6 +57,7 @@ const resetPassword = catchAsync(async (req, res) => {
 module.exports = {
 	register,
 	login,
+	refreshTokens,
 	forgotPassword,
 	resetPassword,
 };
