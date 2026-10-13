@@ -5,6 +5,7 @@ module.exports = {
 				name: 'admin',
 				description: 'some description',
 				created_date_time: new Date(),
+				modified_date_time: new Date(),
 			},
 		]);
 	},
