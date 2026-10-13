@@ -23,6 +23,7 @@ straightforward as possible.
 - `npm start` runs the compiled `dist/index.js`; `npm run dev` uses `tsx watch` instead of nodemon
 - ESLint uses `@typescript-eslint` (ESLint 8, `eslint-config-airbnb-base` 15); tests run through `ts-jest`
 - Require Node >= 26 (`.nvmrc` 26); bump `jsonwebtoken` to 9 and `express-jwt` to 8 (Node 25+ removed `SlowBuffer`, which the old `jsonwebtoken` needs), `sequelize` to 6.37 and `prettier` to 2.8
+- Remove the stray `package-lock.json` (v1, only held the `update-changelog` deps; `yarn.lock` is the lockfile)
 - Remove the unused `flyway/` folder ([#1](https://github.com/japananh/node-express-postgres-boilerplate/issues/1)); the schema lives in the Sequelize migrations
 
 ### Fixed
