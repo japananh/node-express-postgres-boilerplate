@@ -1,25 +1,59 @@
 {
+    "root": true,
     "env": {
         "node": true,
-        "browser": true,
-        "es6": true
+        "es2022": true
     },
     "extends": ["airbnb-base", "plugin:prettier/recommended"],
     "plugins": ["prettier"],
-    "overrides": [
-        {
-            "files": ["tests/**/*.js"],
-            "env": { "jest": true }
-        }
-    ],
     "parserOptions": {
-        "ecmaVersion": 2018
+        "ecmaVersion": 2022
+    },
+    "settings": {
+        "import/extensions": [".js", ".ts"],
+        "import/resolver": {
+            "node": { "extensions": [".js", ".ts"] }
+        }
     },
     "rules": {
         "no-console": "error",
         "func-names": "off",
         "no-underscore-dangle": "off",
         "consistent-return": "off"
-    }
-  }
-  
+    },
+    "overrides": [
+        {
+            "files": ["**/*.ts"],
+            "parser": "@typescript-eslint/parser",
+            "extends": ["plugin:@typescript-eslint/recommended"],
+            "rules": {
+                "import/extensions": ["error", "always", { "ts": "never", "js": "never" }],
+                "import/prefer-default-export": "off",
+                "no-use-before-define": "off",
+                "@typescript-eslint/no-use-before-define": "error",
+                "no-shadow": "off",
+                "@typescript-eslint/no-shadow": "error",
+                "no-unused-vars": "off",
+                "no-useless-constructor": "off",
+                "lines-between-class-members": "off",
+                "@typescript-eslint/no-non-null-assertion": "off",
+                "@typescript-eslint/no-require-imports": "off",
+                "@typescript-eslint/no-var-requires": "off"
+            }
+        },
+        {
+            "files": ["tests/**/*.ts"],
+            "env": { "jest": true },
+            "rules": {
+                "import/first": "off",
+                "global-require": "off",
+                "import/no-dynamic-require": "off",
+                "@typescript-eslint/no-explicit-any": "off"
+            }
+        },
+        {
+            "files": ["src/db/migrations/*.js", "src/db/seeders/*.js"],
+            "rules": { "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }] }
+        }
+    ]
+}
