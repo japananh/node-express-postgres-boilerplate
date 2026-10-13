@@ -52,7 +52,7 @@ export default router;
  *                - name
  *                - email
  *                - password
- *                - role
+ *                - roleId
  *              properties:
  *                name:
  *                  type: string
@@ -65,14 +65,14 @@ export default router;
  *                  format: password
  *                  minLength: 8
  *                  description: At least one number and one letter
- *                role:
- *                  type: string
- *                  description: user/admin
+ *                roleId:
+ *                  type: integer
+ *                  description: id of an existing role (1 admin, 2 user in the default setup)
  *              example:
  *                name: fake name
  *                email: fake@example.com
  *                password: password1
- *                role: user
+ *                roleId: 2
  *      responses:
  *        "201":
  *          description: Created

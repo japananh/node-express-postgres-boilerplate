@@ -10,8 +10,15 @@ components:
                     format: email
                 name:
                     type: string
-                role:
+                role_id:
+                    type: integer
+                    description: not returned by the list endpoint
+                role.id:
+                    type: integer
+                    description: only returned when a user is read, not when created
+                role.name:
                     type: string
+                    description: only returned when a user is read, not when created
                 created_date_time:
                     type: date
                 modified_date_time:
@@ -20,7 +27,9 @@ components:
                 id: 1
                 email: fake@example.com
                 name: fake name
-                role: user
+                role_id: 2
+                role.id: 2
+                role.name: user
                 created_date_time: 2021-02-10T13:38:36.231Z
                 modified_date_time: 2021-02-10T13:38:36.231Z
 
