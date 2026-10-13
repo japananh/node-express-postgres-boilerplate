@@ -82,6 +82,22 @@ describe('User routes', () => {
 		});
 	});
 
+	describe.each(['get', 'patch', 'delete'] as const)(
+		'%s /v1/users/:userId with a bad id',
+		(method) => {
+			it.each(['abc', '1.5', '0', '99999999999'])(
+				'returns 400 for %s',
+				async (id) => {
+					await request(app)
+						[method](`/v1/users/${id}`)
+						.set('Authorization', bearer(admin.tokens))
+						.send({ name: 'x' })
+						.expect(httpStatus.BAD_REQUEST);
+				}
+			);
+		}
+	);
+
 	describe('GET /v1/users/:userId', () => {
 		it('lets an admin read any user', async () => {
 			const res = await request(app)
@@ -165,6 +181,14 @@ describe('User routes', () => {
 				.set('Authorization', bearer(admin.tokens))
 				.send({ email: admin.user.email })
 				.expect(httpStatus.CONFLICT);
+		});
+
+		it('returns 404 for a missing user', async () => {
+			await request(app)
+				.patch('/v1/users/999')
+				.set('Authorization', bearer(admin.tokens))
+				.send({ name: 'x' })
+				.expect(httpStatus.NOT_FOUND);
 		});
 
 		it('returns 400 for an empty body', async () => {

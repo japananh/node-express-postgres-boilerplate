@@ -30,6 +30,7 @@ straightforward as possible.
 - `sequelize-cli` ignored `SQL_USERNAME` and used the OS user
 - Demo role seeder violated `modified_date_time NOT NULL`
 - `PATCH /v1/roles/:roleId` returned 200 with an empty body for a missing role (now 404), and did not validate its body or id (400 for an empty body, unknown fields or a non-numeric id); `DELETE /v1/roles/:roleId` rejects a non-numeric id with 400
+- `GET`, `PATCH` and `DELETE /v1/users/:userId` returned 500 for a non-numeric or out-of-range id (now 400)
 
 ## [1.0.0] - 2021-02-27
 

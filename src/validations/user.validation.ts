@@ -1,5 +1,5 @@
 import Joi from '@hapi/joi';
-import { password } from './custom.validation';
+import { password, idParam } from './custom.validation';
 
 const createUser = {
 	body: Joi.object().keys({
@@ -22,13 +22,13 @@ const getUsers = {
 
 const getUser = {
 	params: Joi.object().keys({
-		userId: Joi.string(),
+		userId: idParam,
 	}),
 };
 
 const updateUser = {
 	params: Joi.object().keys({
-		userId: Joi.required(),
+		userId: idParam,
 	}),
 	body: Joi.object()
 		.keys({
@@ -41,7 +41,7 @@ const updateUser = {
 
 const deleteUser = {
 	params: Joi.object().keys({
-		userId: Joi.string(),
+		userId: idParam,
 	}),
 };
 
