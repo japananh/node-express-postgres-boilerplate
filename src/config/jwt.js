@@ -1,9 +1,5 @@
-const expressJwt = require('express-jwt');
+const { expressjwt: expressJwt } = require('express-jwt');
 const config = require('./config.js');
-
-async function isRevoked(_req, _payload, done) {
-	done();
-}
 
 function jwt() {
 	const { secret } = config.jwt;
@@ -17,7 +13,8 @@ function jwt() {
 			return null;
 		},
 		algorithms: ['HS256'],
-		isRevoked,
+		// express-jwt >= 7 defaults to `req.auth`; the app reads `req.user`.
+		requestProperty: 'user',
 	}).unless({
 		path: [
 			// public routes that don't require authentication
