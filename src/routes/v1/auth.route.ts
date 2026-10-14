@@ -83,7 +83,7 @@ export default router;
  *                properties:
  *                  user:
  *                    $ref: '#/components/schemas/User'
- *        "400":
+ *        "409":
  *          $ref: '#/components/responses/DuplicateEmail'
  */
 

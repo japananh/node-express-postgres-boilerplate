@@ -105,8 +105,8 @@ components:
                     schema:
                         $ref: '#/components/schemas/Error'
                     example:
-                        code: 400
-                        message: Email already taken
+                        code: 409
+                        message: This email already exits
         Unauthorized:
             description: Unauthorized
             content:

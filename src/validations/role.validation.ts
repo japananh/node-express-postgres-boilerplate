@@ -1,5 +1,13 @@
 import Joi from '@hapi/joi';
-import { idParam } from './custom.validation';
+import { idParam, sortBy } from './custom.validation';
+
+const roleSortFields = [
+	'id',
+	'name',
+	'description',
+	'created_date_time',
+	'modified_date_time',
+] as const;
 
 const createRole = {
 	body: Joi.object().keys({
@@ -10,6 +18,7 @@ const createRole = {
 
 const getRoles = {
 	query: Joi.object().keys({
+		sortBy: sortBy(roleSortFields),
 		limit: Joi.number().min(1),
 		page: Joi.number().min(1),
 	}),

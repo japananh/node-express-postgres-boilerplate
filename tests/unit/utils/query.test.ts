@@ -1,4 +1,8 @@
-import { getOffset, generateQuery } from '../../../src/utils/query';
+import {
+	getOffset,
+	generateQuery,
+	getSortOrder,
+} from '../../../src/utils/query';
 import config from '../../../src/config/config';
 
 describe('getOffset', () => {
@@ -12,6 +16,19 @@ describe('getOffset', () => {
 		expect(getOffset()).toBe(
 			(config.pagination.page - 1) * config.pagination.limit
 		);
+	});
+});
+
+describe('getSortOrder', () => {
+	it('maps field:asc and field:desc, with id as tie-breaker', () => {
+		expect(getSortOrder('name:asc')).toEqual([
+			['name', 'ASC'],
+			['id', 'ASC'],
+		]);
+		expect(getSortOrder('email:desc')).toEqual([
+			['email', 'DESC'],
+			['id', 'ASC'],
+		]);
 	});
 });
 

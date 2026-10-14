@@ -12,6 +12,7 @@ interface RoleBody {
 interface PageQuery {
 	page?: number;
 	limit?: number;
+	sortBy?: string;
 }
 
 const createRole = catchAsync(

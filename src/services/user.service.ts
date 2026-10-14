@@ -1,6 +1,7 @@
 import httpStatus from 'http-status';
+import { UniqueConstraintError } from 'sequelize';
 import type { InferAttributes } from 'sequelize';
-import { getOffset } from '../utils/query';
+import { getOffset, getSortOrder } from '../utils/query';
 import ApiError from '../utils/ApiError';
 import { encryptData } from '../utils/auth';
 import config from '../config/config';
@@ -17,6 +18,7 @@ type UserRow = Omit<InferAttributes<User>, 'password'> & {
 interface PageQuery {
 	page?: number;
 	limit?: number;
+	sortBy?: string;
 }
 
 interface UserBody {
@@ -70,12 +72,22 @@ async function createUser(req: { body: UserBody }) {
 		throw new ApiError(httpStatus.NOT_FOUND, 'Role not found');
 	}
 
-	const createdUser = await User.create({
-		name,
-		email,
-		role_id: roleId,
-		password: hashedPassword,
-	}).then((resultEntity) => resultEntity.get({ plain: true }));
+	let createdUser;
+	try {
+		const created = await User.create({
+			name,
+			email,
+			role_id: roleId,
+			password: hashedPassword,
+		});
+		createdUser = created.get({ plain: true });
+	} catch (error) {
+		// Lost a race with a concurrent create of the same email.
+		if (error instanceof UniqueConstraintError) {
+			throw new ApiError(httpStatus.CONFLICT, 'This email already exits');
+		}
+		throw error;
+	}
 
 	return createdUser as Omit<typeof createdUser, 'password'> & {
 		password?: string;
@@ -84,16 +96,18 @@ async function createUser(req: { body: UserBody }) {
 
 async function getUsers(req: { query: PageQuery }) {
 	const { page: defaultPage, limit: defaultLimit } = config.pagination;
-	const { page = defaultPage, limit = defaultLimit } = req.query;
+	const { page = defaultPage, limit = defaultLimit, sortBy } = req.query;
 
 	const offset = getOffset(page, limit);
 
 	const users = await User.findAndCountAll({
-		order: [
-			['name', 'ASC'],
-			['created_date_time', 'DESC'],
-			['modified_date_time', 'DESC'],
-		],
+		order: sortBy
+			? getSortOrder(sortBy)
+			: [
+					['name', 'ASC'],
+					['created_date_time', 'DESC'],
+					['modified_date_time', 'DESC'],
+			  ],
 		include: [roleInclude],
 		attributes: [
 			'id',

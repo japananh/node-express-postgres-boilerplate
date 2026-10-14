@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import { ForeignKeyConstraintError, UniqueConstraintError } from 'sequelize';
-import { getOffset } from '../utils/query';
+import { getOffset, getSortOrder } from '../utils/query';
 import ApiError from '../utils/ApiError';
 import config from '../config/config';
 import { Role } from '../db/models';
@@ -8,6 +8,7 @@ import { Role } from '../db/models';
 interface PageQuery {
 	page?: number;
 	limit?: number;
+	sortBy?: string;
 }
 
 interface RoleBody {
@@ -33,16 +34,18 @@ async function getRoleByName(name: string) {
 
 async function getRoles(req: { query: PageQuery }) {
 	const { page: defaultPage, limit: defaultLimit } = config.pagination;
-	const { page = defaultPage, limit = defaultLimit } = req.query;
+	const { page = defaultPage, limit = defaultLimit, sortBy } = req.query;
 
 	const offset = getOffset(page, limit);
 
 	const roles = await Role.findAndCountAll({
-		order: [
-			['name', 'ASC'],
-			['created_date_time', 'DESC'],
-			['modified_date_time', 'DESC'],
-		],
+		order: sortBy
+			? getSortOrder(sortBy)
+			: [
+					['name', 'ASC'],
+					['created_date_time', 'DESC'],
+					['modified_date_time', 'DESC'],
+			  ],
 		limit,
 		offset,
 		raw: true,

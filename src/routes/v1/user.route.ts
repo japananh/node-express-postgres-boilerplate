@@ -9,6 +9,11 @@ const router = express.Router();
 
 router
 	.route('/')
+	.post(
+		grantAccess('createAny', resources.USERINFO),
+		validate(userValidation.createUser),
+		userController.createUser
+	)
 	.get(
 		grantAccess('readAny', resources.USERINFO),
 		validate(userValidation.getUsers),
@@ -88,13 +93,28 @@ export default router;
  *          content:
  *            application/json:
  *              schema:
- *                 $ref: '#/components/schemas/User'
+ *                type: object
+ *                properties:
+ *                  user:
+ *                    $ref: '#/components/schemas/User'
  *        "400":
- *          $ref: '#/components/responses/DuplicateEmail'
+ *          description: Invalid request body
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Error'
  *        "401":
  *          $ref: '#/components/responses/Unauthorized'
  *        "403":
  *          $ref: '#/components/responses/Forbidden'
+ *        "404":
+ *          description: Role not found
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Error'
+ *        "409":
+ *          $ref: '#/components/responses/DuplicateEmail'
  *
  *    get:
  *      summary: Get all users
@@ -122,7 +142,9 @@ export default router;
  *          name: sortBy
  *          schema:
  *            type: string
- *          description: sort by query in the form of field:desc/asc (ex. name:asc)
+ *            pattern: '^(id|name|email|created_date_time|modified_date_time):(asc|desc)$'
+ *            example: name:asc
+ *          description: Sort by one field, as field:asc or field:desc. Allowed fields are id, name, email, created_date_time and modified_date_time. Ties are broken by id ascending. Without it, users are ordered by name asc, created_date_time desc, modified_date_time desc. An invalid value answers 400.
  *        - in: query
  *          name: limit
  *          schema:
@@ -239,14 +261,14 @@ export default router;
  *            application/json:
  *              schema:
  *                 $ref: '#/components/schemas/User'
- *        "400":
- *          $ref: '#/components/responses/DuplicateEmail'
  *        "401":
  *          $ref: '#/components/responses/Unauthorized'
  *        "403":
  *          $ref: '#/components/responses/Forbidden'
  *        "404":
  *          $ref: '#/components/responses/NotFound'
+ *        "409":
+ *          $ref: '#/components/responses/DuplicateEmail'
  *
  *    delete:
  *      summary: Delete a user

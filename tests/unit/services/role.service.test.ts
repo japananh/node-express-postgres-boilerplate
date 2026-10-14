@@ -38,6 +38,19 @@ describe('role.service', () => {
 			);
 		});
 
+		it('orders by sortBy with an id tie-breaker', async () => {
+			mockRole.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
+			await roleService.getRoles({ query: { sortBy: 'name:desc' } });
+			expect(mockRole.findAndCountAll).toHaveBeenCalledWith(
+				expect.objectContaining({
+					order: [
+						['name', 'DESC'],
+						['id', 'ASC'],
+					],
+				})
+			);
+		});
+
 		it('computes the offset from page and limit', async () => {
 			mockRole.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
 			await roleService.getRoles({ query: { page: 3, limit: 5 } });
