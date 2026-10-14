@@ -33,10 +33,12 @@ describe('user.service', () => {
 		expect(mockUser.findOne.mock.calls[0][0]).toMatchObject({
 			where: { email: 'a@b.co' },
 			raw: true,
+			nest: true,
 		});
 		expect(mockUser.findOne.mock.calls[1][0]).toMatchObject({
 			where: { id: 1 },
 			raw: true,
+			nest: true,
 		});
 	});
 
@@ -134,7 +136,12 @@ describe('user.service', () => {
 			mockUser.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
 			await userService.getUsers({ query: { page: 2, limit: 5 } });
 			const options = mockUser.findAndCountAll.mock.calls[0][0];
-			expect(options).toMatchObject({ offset: 5, limit: 5 });
+			expect(options).toMatchObject({
+				offset: 5,
+				limit: 5,
+				raw: true,
+				nest: true,
+			});
 			expect(options.attributes).not.toContain('password');
 		});
 	});

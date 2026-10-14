@@ -13,12 +13,14 @@ components:
                 role_id:
                     type: integer
                     description: not returned by the list endpoint
-                role.id:
-                    type: integer
-                    description: only returned when a user is read, not when created
-                role.name:
-                    type: string
-                    description: only returned when a user is read, not when created
+                role:
+                    type: object
+                    description: returned by login, get and list; not by register, create or update
+                    properties:
+                        id:
+                            type: integer
+                        name:
+                            type: string
                 created_date_time:
                     type: date
                 modified_date_time:
@@ -28,8 +30,9 @@ components:
                 email: fake@example.com
                 name: fake name
                 role_id: 2
-                role.id: 2
-                role.name: user
+                role:
+                    id: 2
+                    name: user
                 created_date_time: 2021-02-10T13:38:36.231Z
                 modified_date_time: 2021-02-10T13:38:36.231Z
 

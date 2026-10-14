@@ -205,6 +205,30 @@ describe('User routes', () => {
 			});
 		});
 
+		it('returns each role as a nested object, never as dotted keys', async () => {
+			const res = await request(app)
+				.get('/v1/users')
+				.set('Authorization', bearer(admin.tokens))
+				.expect(httpStatus.OK);
+
+			const byId = new Map<number, Record<string, unknown>>(
+				res.body.users.rows.map((r: { id: number }) => [r.id, r])
+			);
+			expect(byId.get(admin.user.id)!.role).toEqual({
+				id: 1,
+				name: 'admin',
+			});
+			expect(byId.get(regular.user.id)!.role).toEqual({
+				id: 2,
+				name: 'user',
+			});
+			res.body.users.rows.forEach((row: object) => {
+				expect(Object.keys(row).filter((k) => k.includes('.'))).toEqual(
+					[]
+				);
+			});
+		});
+
 		it('paginates with limit and page', async () => {
 			const res = await request(app)
 				.get('/v1/users')
@@ -260,6 +284,9 @@ describe('User routes', () => {
 				email: regular.user.email,
 			});
 			expect(res.body.user).not.toHaveProperty('password');
+			expect(res.body.user.role).toEqual({ id: 2, name: 'user' });
+			expect(res.body.user).not.toHaveProperty(['role.id']);
+			expect(res.body.user).not.toHaveProperty(['role.name']);
 		});
 
 		it('lets a regular user read themselves', async () => {

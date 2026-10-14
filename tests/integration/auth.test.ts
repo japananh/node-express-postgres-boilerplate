@@ -123,7 +123,20 @@ describe('Auth routes', () => {
 
 			expect(res.body.user.email).toBe(user.email);
 			expect(res.body.user).not.toHaveProperty('password');
+			expect(res.body.user.role).toEqual({ id: 1, name: 'admin' });
+			expect(
+				Object.keys(res.body.user).filter((k) => k.includes('.'))
+			).toEqual([]);
 			expect(res.body.tokens.access.token).toEqual(expect.any(String));
+		});
+
+		it('nests the role of a regular user', async () => {
+			const { user } = await createUser();
+			const res = await request(app)
+				.post('/v1/auth/login')
+				.send({ email: user.email, password: 'password1' })
+				.expect(httpStatus.OK);
+			expect(res.body.user.role).toEqual({ id: 2, name: 'user' });
 		});
 
 		it('returns 401 for a wrong password', async () => {
