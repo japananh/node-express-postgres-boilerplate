@@ -12,7 +12,7 @@ REST API boilerplate. This file is the canonical guide for AI coding agents; hum
 
 ```bash
 yarn install
-cp .env.example .env      # set SQL_* to a Postgres you run yourself; docker-compose.yml only has the test DB
+cp .env.example .env      # set DB_* to a Postgres you run yourself; docker-compose.yml only has the test DB
 node_modules/.bin/sequelize db:migrate
 node_modules/.bin/sequelize db:seed:all
 yarn dev                  # tsx watch src/index.ts, http://localhost:3000, docs at /v1/docs
@@ -40,7 +40,7 @@ yarn test:db:down         # removes the container and its data
 - `src/controllers/`: thin HTTP handlers wrapped in `catchAsync`
 - `src/services/`: business logic and Sequelize queries
 - `src/db/models/`: typed Sequelize models; `migrations/` and `seeders/` are plain JS
-- `src/db/config/database.js`: sequelize-cli connection (reads `SQL_*` itself)
+- `src/db/config/database.js`: sequelize-cli connection (reads `DB_*` itself)
 - `src/docs/`: `swaggerDef.ts` and shared `components.yml` (schemas, responses)
 - `src/utils/`: `ApiError`, `catchAsync`, `pick`, `query` (paging, sorting), `auth`
 - `src/types/`: Express request augmentation (`req.user`)
@@ -81,8 +81,8 @@ Replace `widget` with the new name.
 ## Gotchas
 
 - sequelize-cli cannot load TypeScript, so migrations, seeders and `src/db/config/database.js` are JS and must not import from `src/config/config.ts`.
-- The integration suite truncates tables: `tests/helpers/env.ts` throws unless `SQL_DATABASE_NAME` contains `test`. Its defaults match `docker-compose.yml`.
-- The test DB listens on host port 54329 (not 5432); CI uses a Postgres service on 5432 via `SQL_*` env vars.
+- The integration suite truncates tables: `tests/helpers/env.ts` throws unless `DB_NAME` contains `test`. Its defaults match `docker-compose.yml`.
+- The test DB listens on host port 54329 (not 5432); CI uses a Postgres service on 5432 via `DB_*` env vars.
 - Integration `globalSetup` runs `db:migrate:undo:all` then `db:migrate`, so migrations must be reversible.
 - Integration tests share one database; run them with `--runInBand` (`yarn test` already does).
 - `grantAccess` switches `*Any` to `*Own` when `req.params.userId` equals the caller's id.

@@ -8,7 +8,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
  
 Here we write upgrading notes for brands. It's a team effort to make them as
 straightforward as possible.
- 
+
+### Breaking
+- BREAKING: database env vars renamed from `SQL_*` to `DB_*`
+  - `SQL_HOST` -> `DB_HOST`
+  - `SQL_PORT` -> `DB_PORT`
+  - `SQL_DATABASE_NAME` -> `DB_NAME`
+  - `SQL_USERNAME` -> `DB_USERNAME`
+  - `SQL_PASSWORD` -> `DB_PASSWORD`
+  - `SQL_DIALECT` -> `DB_DIALECT`
+  - `SQL_MAX_POOL` -> `DB_MAX_POOL`
+  - `SQL_MIN_POOL` -> `DB_MIN_POOL`
+  - `SQL_IDLE` -> `DB_IDLE`
+
 ### Added
 - TypeScript (`strict`): `src/` and `tests/` are `.ts`, typed Sequelize models, `tsc` build to `dist/`, `typecheck` script
 - Jest and supertest: unit tests and integration tests (auth, user, role) against Postgres, `npm test` / `npm run test:coverage`, `docker-compose.yml` for the test database and a GitHub Actions workflow

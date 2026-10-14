@@ -23,11 +23,11 @@ jobs:
           --health-timeout 3s
           --health-retries 20
     env:
-      SQL_HOST: 127.0.0.1
-      SQL_PORT: 5432
-      SQL_USERNAME: test
-      SQL_PASSWORD: test
-      SQL_DATABASE_NAME: test
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_USERNAME: test
+      DB_PASSWORD: test
+      DB_NAME: test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
