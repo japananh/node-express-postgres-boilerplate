@@ -1,6 +1,7 @@
 import request from 'supertest';
 import httpStatus from 'http-status';
 import app from '../../src/app';
+import config from '../../src/config/config';
 import { resetDb, closeDb } from '../helpers/db';
 import {
 	ADMIN_ROLE_ID,
@@ -36,6 +37,30 @@ describe('User routes', () => {
 			await request(app)
 				.get('/v1/users')
 				.set('Authorization', `Bearer ${forged}`)
+				.expect(httpStatus.UNAUTHORIZED);
+		});
+	});
+
+	describe('authentication in production', () => {
+		beforeEach(() => {
+			config.env = 'production';
+		});
+
+		afterEach(() => {
+			config.env = 'test';
+		});
+
+		it('returns 401, not a masked 500, without a token', async () => {
+			const res = await request(app)
+				.get('/v1/users')
+				.expect(httpStatus.UNAUTHORIZED);
+			expect(res.body.code).toBe(httpStatus.UNAUTHORIZED);
+		});
+
+		it('returns 401 for a malformed token', async () => {
+			await request(app)
+				.get('/v1/users')
+				.set('Authorization', 'Bearer not-a-jwt')
 				.expect(httpStatus.UNAUTHORIZED);
 		});
 	});

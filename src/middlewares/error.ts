@@ -13,7 +13,15 @@ const errorConverter = (
 	next: NextFunction
 ) => {
 	let error = err;
-	if (!(error instanceof ApiError)) {
+	// Auth failures are client errors; without this the production masking turns them into 500.
+	if (error.name === 'UnauthorizedError') {
+		error = new ApiError(
+			httpStatus.UNAUTHORIZED,
+			error.message,
+			true,
+			err.stack
+		);
+	} else if (!(error instanceof ApiError)) {
 		// express-jwt errors expose `status`, not `statusCode`.
 		const statusCode =
 			error.statusCode ||
