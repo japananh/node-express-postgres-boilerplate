@@ -28,6 +28,22 @@ describe('errorConverter', () => {
 		});
 	});
 
+	it('converts an express-jwt UnauthorizedError to an operational 401', () => {
+		const next = jest.fn();
+		const jwtError = Object.assign(new Error('jwt malformed'), {
+			name: 'UnauthorizedError',
+			status: 401,
+		});
+		errorConverter(jwtError, req, noRes, next);
+		const error = next.mock.calls[0][0];
+		expect(error).toBeInstanceOf(ApiError);
+		expect(error).toMatchObject({
+			statusCode: 401,
+			message: 'jwt malformed',
+			isOperational: true,
+		});
+	});
+
 	it('honours statusCode and status (express-jwt uses status)', () => {
 		const next = jest.fn();
 		errorConverter(
