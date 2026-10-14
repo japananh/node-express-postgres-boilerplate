@@ -38,7 +38,7 @@
     "es9"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/japananh/node-express-postgres-boilerplate/issues"
   },
