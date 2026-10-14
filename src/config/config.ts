@@ -27,7 +27,7 @@ const envVarsSchema = Joi.object()
 		DB_USERNAME: Joi.string().description('database username'),
 		DB_HOST: Joi.string().description('database host'),
 		DB_PORT: Joi.number().description('database port'),
-		DB_NAME: Joi.string().description('database database name'),
+		DB_NAME: Joi.string().description('database name'),
 		DB_PASSWORD: Joi.string().description('database password'),
 		DB_DIALECT: Joi.string()
 			.default('postgres')
