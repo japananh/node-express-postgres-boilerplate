@@ -8,11 +8,10 @@ import config from '../config/config';
 import { Role, User } from '../db/models';
 import * as roleService from './role.service';
 
-// `raw: true` flattens the joined role into dotted keys.
+// `raw: true` alone flattens the joined role into dotted keys; `nest: true` rebuilds it.
 type UserRow = Omit<InferAttributes<User>, 'password'> & {
 	password?: string;
-	'role.id': number | null;
-	'role.name': string | null;
+	role: { id: number; name: string };
 };
 
 interface PageQuery {
@@ -45,6 +44,7 @@ async function getUserByEmail(email: string) {
 		where: { email },
 		include: [roleInclude],
 		raw: true,
+		nest: true,
 	});
 
 	return user as unknown as UserRow | null;
@@ -55,6 +55,7 @@ async function getUserById(id: number | string) {
 		where: { id },
 		include: [roleInclude],
 		raw: true,
+		nest: true,
 	});
 
 	return user as unknown as UserRow | null;
@@ -139,6 +140,7 @@ async function getUsers(req: { query: PageQuery }) {
 		offset,
 		limit,
 		raw: true,
+		nest: true,
 	});
 
 	return users;
