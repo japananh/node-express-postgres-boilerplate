@@ -55,6 +55,16 @@ yarn dev
 
 The API listens on `http://localhost:3000`. Swagger UI is at `http://localhost:3000/v1/docs`.
 
+### Demo credentials
+
+`db:seed:all` creates an admin and the `admin` and `user` roles:
+
+| Email | Password | Role |
+|---|---|---|
+| `example@example.com` | `password1` | admin |
+
+> **Warning:** these credentials are public. Change the password or delete the account (`node_modules/.bin/sequelize db:seed:undo --seed 20210227144500-demo-user.js`) before any production use.
+
 ## Test
 
 Unit tests need no database:
