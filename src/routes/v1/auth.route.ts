@@ -184,7 +184,7 @@ export default router;
  * /auth/forgot-password:
  *    post:
  *      summary: Forgot password
- *      description: An email will be sent to reset password.
+ *      description: An email will be sent to reset password. Answers 503 when the mail server is unreachable.
  *      tags: [Auth]
  *      requestBody:
  *        required: true
@@ -209,6 +209,8 @@ export default router;
  *                $ref: '#/components/schemas/Success'
  *        "404":
  *          $ref: '#/components/responses/NotFound'
+ *        "503":
+ *          $ref: '#/components/responses/EmailUnavailable'
  */
 
 /**

@@ -1,8 +1,16 @@
+import httpStatus from 'http-status';
 import nodemailer from 'nodemailer';
 import config from '../config/config';
 import logger from '../config/logger';
+import ApiError from '../utils/ApiError';
 
-const transport = nodemailer.createTransport(config.email.smtp);
+// nodemailer waits 2 minutes to connect by default; fail the request sooner.
+const transport = nodemailer.createTransport({
+	...config.email.smtp,
+	connectionTimeout: 10_000,
+	greetingTimeout: 10_000,
+	socketTimeout: 20_000,
+});
 
 if (config.env !== 'test') {
 	transport
@@ -20,7 +28,16 @@ if (config.env !== 'test') {
  */
 const sendEmail = async (to: string, subject: string, text: string) => {
 	const msg = { from: config.email.from, to, subject, text };
-	await transport.sendMail(msg);
+	try {
+		await transport.sendMail(msg);
+	} catch (error) {
+		// DNS, connection, TLS and auth failures all mean the same to the caller.
+		logger.warn(`Email send failed: ${(error as Error).message}`);
+		throw new ApiError(
+			httpStatus.SERVICE_UNAVAILABLE,
+			'Email service unavailable'
+		);
+	}
 };
 
 /**
