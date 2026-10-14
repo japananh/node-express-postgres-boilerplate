@@ -2,7 +2,7 @@ import request from 'supertest';
 import httpStatus from 'http-status';
 import app from '../../src/app';
 import config from '../../src/config/config';
-import { resetDb, closeDb } from '../helpers/db';
+import { db, resetDb, closeDb } from '../helpers/db';
 import {
 	ADMIN_ROLE_ID,
 	ensureUserRole,
@@ -65,7 +65,129 @@ describe('User routes', () => {
 		});
 	});
 
+	describe('POST /v1/users', () => {
+		const body = () => ({
+			name: 'New Person',
+			email: 'new.person@example.com',
+			password: 'password1',
+			roleId: 2,
+		});
+
+		it('lets an admin create a user with a hashed password', async () => {
+			const res = await request(app)
+				.post('/v1/users')
+				.set('Authorization', bearer(admin.tokens))
+				.send(body())
+				.expect(httpStatus.CREATED);
+
+			expect(res.body.user).toMatchObject({
+				name: 'New Person',
+				email: 'new.person@example.com',
+				role_id: 2,
+			});
+			expect(res.body.user).not.toHaveProperty('password');
+
+			const stored = await db.user.findByPk(res.body.user.id);
+			expect(stored!.password).not.toBe('password1');
+			await request(app)
+				.post('/v1/auth/login')
+				.send({
+					email: 'new.person@example.com',
+					password: 'password1',
+				})
+				.expect(httpStatus.OK);
+		});
+
+		it('returns 409 for a duplicate email', async () => {
+			await request(app)
+				.post('/v1/users')
+				.set('Authorization', bearer(admin.tokens))
+				.send({ ...body(), email: regular.user.email })
+				.expect(httpStatus.CONFLICT);
+		});
+
+		it('returns 404 for an unknown role', async () => {
+			await request(app)
+				.post('/v1/users')
+				.set('Authorization', bearer(admin.tokens))
+				.send({ ...body(), roleId: 999 })
+				.expect(httpStatus.NOT_FOUND);
+		});
+
+		it.each([
+			['a missing field', { name: undefined }],
+			['a weak password', { password: 'short' }],
+			['a bad email', { email: 'nope' }],
+		])('returns 400 for %s', async (_label, patch) => {
+			await request(app)
+				.post('/v1/users')
+				.set('Authorization', bearer(admin.tokens))
+				.send({ ...body(), ...patch })
+				.expect(httpStatus.BAD_REQUEST);
+		});
+
+		it('returns 403 for a regular user', async () => {
+			await request(app)
+				.post('/v1/users')
+				.set('Authorization', bearer(regular.tokens))
+				.send(body())
+				.expect(httpStatus.FORBIDDEN);
+		});
+
+		it('returns 401 without a token', async () => {
+			await request(app)
+				.post('/v1/users')
+				.send(body())
+				.expect(httpStatus.UNAUTHORIZED);
+		});
+	});
+
 	describe('GET /v1/users', () => {
+		it.each([
+			['name:asc', ['Amy', 'Nana', 'Zed']],
+			['name:desc', ['Zed', 'Nana', 'Amy']],
+		])('sorts by %s', async (sortBy, names) => {
+			await db.user.update(
+				{ name: 'Zed' },
+				{ where: { id: admin.user.id } }
+			);
+			await db.user.update(
+				{ name: 'Amy' },
+				{ where: { id: regular.user.id } }
+			);
+			const res = await request(app)
+				.get('/v1/users')
+				.query({ sortBy })
+				.set('Authorization', bearer(admin.tokens))
+				.expect(httpStatus.OK);
+
+			expect(
+				res.body.users.rows.map((r: { name: string }) => r.name)
+			).toEqual(names);
+		});
+
+		it('sorts by id descending', async () => {
+			const res = await request(app)
+				.get('/v1/users')
+				.query({ sortBy: 'id:desc' })
+				.set('Authorization', bearer(admin.tokens))
+				.expect(httpStatus.OK);
+
+			const ids = res.body.users.rows.map((r: { id: number }) => r.id);
+			expect(ids).toEqual([...ids].sort((a, b) => b - a));
+		});
+
+		it.each(['password:asc', 'name', 'name:sideways', 'id:asc;x'])(
+			'returns 400 for sortBy=%s',
+			async (sortBy) => {
+				await request(app)
+					.get('/v1/users')
+					.query({ sortBy })
+					.set('Authorization', bearer(admin.tokens))
+					.expect(httpStatus.BAD_REQUEST);
+			}
+		);
+
 		it('lets an admin list users with a count', async () => {
 			const res = await request(app)
 				.get('/v1/users')

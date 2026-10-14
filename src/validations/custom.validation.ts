@@ -17,4 +17,13 @@ const password = (value: string, helpers: CustomHelpers) => {
 // Bounded to Postgres `integer`; anything larger is a driver error, not a 404.
 const idParam = Joi.number().integer().min(1).max(2147483647).required();
 
-export { password, idParam };
+const sortBy = (fields: readonly string[]) =>
+	Joi.string()
+		.pattern(new RegExp(`^(${fields.join('|')}):(asc|desc)$`))
+		.messages({
+			'string.pattern.base': `sortBy must be in the form field:asc|desc, where field is one of ${fields.join(
+				', '
+			)}`,
+		});
+
+export { password, idParam, sortBy };

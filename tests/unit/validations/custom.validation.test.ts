@@ -1,5 +1,9 @@
 import type { CustomHelpers } from '@hapi/joi';
-import { password, idParam } from '../../../src/validations/custom.validation';
+import {
+	password,
+	idParam,
+	sortBy,
+} from '../../../src/validations/custom.validation';
 
 describe('password validation', () => {
 	const message = jest.fn((msg: { custom: string }) => msg.custom);
@@ -35,4 +39,34 @@ describe('idParam', () => {
 			expect(idParam.validate(value).error).toBeDefined();
 		}
 	);
+});
+
+describe('sortBy', () => {
+	const schema = sortBy(['name', 'created_date_time']);
+
+	it.each(['name:asc', 'name:desc', 'created_date_time:desc'])(
+		'accepts %s',
+		(value) => {
+			expect(schema.validate(value).error).toBeUndefined();
+		}
+	);
+
+	it.each([
+		'password:asc',
+		'name',
+		'name:',
+		'name:up',
+		'name:ASC',
+		'name:asc,name:desc',
+		'name;drop:asc',
+		'',
+	])('rejects %p', (value) => {
+		expect(schema.validate(value).error).toBeDefined();
+	});
+
+	it('names the allowed fields in the message', () => {
+		expect(schema.validate('x:asc').error?.message).toContain(
+			'name, created_date_time'
+		);
+	});
 });

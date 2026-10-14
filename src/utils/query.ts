@@ -11,6 +11,16 @@ async function generateQuery(req: Pick<Request, 'postgres'>, query: string) {
 	return result;
 }
 
+// sortBy is `field:asc|desc`, already whitelisted by the route validation.
+// `id` is appended so pages stay stable when the sorted column has ties.
+function getSortOrder(sortBy: string): [string, 'ASC' | 'DESC'][] {
+	const [field, direction] = sortBy.split(':');
+	return [
+		[field, direction === 'desc' ? 'DESC' : 'ASC'],
+		['id', 'ASC'],
+	];
+}
+
 function getOffset(
 	page = config.pagination.page,
 	limit = config.pagination.limit
@@ -18,4 +28,4 @@ function getOffset(
 	return (page - 1) * limit;
 }
 
-export { generateQuery, getOffset };
+export { generateQuery, getOffset, getSortOrder };

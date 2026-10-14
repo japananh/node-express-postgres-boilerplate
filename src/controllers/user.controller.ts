@@ -7,7 +7,26 @@ import { userService } from '../services';
 interface PageQuery {
 	page?: number;
 	limit?: number;
+	sortBy?: string;
 }
+
+interface CreateUserBody {
+	email: string;
+	name: string;
+	password: string;
+	roleId: number;
+}
+
+const createUser = catchAsync(
+	async (
+		req: Request<Record<string, string>, unknown, CreateUserBody>,
+		res
+	) => {
+		const user = await userService.createUser(req);
+		delete user.password;
+		res.status(httpStatus.CREATED).send({ user });
+	}
+);
 
 const getUsers = catchAsync(
 	async (
@@ -55,4 +74,4 @@ const updateUser = catchAsync(
 	}
 );
 
-export { getUsers, getUser, updateUser, deleteUser };
+export { createUser, getUsers, getUser, updateUser, deleteUser };

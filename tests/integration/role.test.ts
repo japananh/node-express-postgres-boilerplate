@@ -68,6 +68,32 @@ describe('Role routes', () => {
 	});
 
 	describe('GET /v1/roles', () => {
+		it.each([
+			['name:asc', ['admin', 'user']],
+			['name:desc', ['user', 'admin']],
+		])('sorts by %s', async (sortBy, names) => {
+			const res = await request(app)
+				.get('/v1/roles')
+				.query({ sortBy })
+				.set('Authorization', bearer(admin.tokens))
+				.expect(httpStatus.OK);
+
+			expect(
+				res.body.roles.rows.map((r: { name: string }) => r.name)
+			).toEqual(names);
+		});
+
+		it.each(['bogus:asc', 'name:sideways', 'name'])(
+			'returns 400 for sortBy=%s',
+			async (sortBy) => {
+				await request(app)
+					.get('/v1/roles')
+					.query({ sortBy })
+					.set('Authorization', bearer(admin.tokens))
+					.expect(httpStatus.BAD_REQUEST);
+			}
+		);
+
 		it('lists roles with a count', async () => {
 			const res = await request(app)
 				.get('/v1/roles')

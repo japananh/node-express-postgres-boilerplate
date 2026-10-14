@@ -1,5 +1,13 @@
 import Joi from '@hapi/joi';
-import { password, idParam } from './custom.validation';
+import { password, idParam, sortBy } from './custom.validation';
+
+const userSortFields = [
+	'id',
+	'name',
+	'email',
+	'created_date_time',
+	'modified_date_time',
+] as const;
 
 const createUser = {
 	body: Joi.object().keys({
@@ -15,6 +23,7 @@ const getUsers = {
 		name: Joi.string(),
 		email: Joi.string().email(),
 		roleId: Joi.number(),
+		sortBy: sortBy(userSortFields),
 		limit: Joi.number().min(1),
 		page: Joi.number().min(1),
 	}),

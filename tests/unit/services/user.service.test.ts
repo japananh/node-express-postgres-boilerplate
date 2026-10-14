@@ -9,6 +9,7 @@ jest.mock('../../../src/db/models', () => ({
 	Role: { findOne: jest.fn() },
 }));
 
+import { UniqueConstraintError } from 'sequelize';
 import { Role, User } from '../../../src/db/models';
 import * as userService from '../../../src/services/user.service';
 import { decryptData } from '../../../src/utils/auth';
@@ -77,6 +78,15 @@ describe('user.service', () => {
 			expect(mockUser.create).not.toHaveBeenCalled();
 		});
 
+		it('throws 409 when the unique index rejects a racing insert', async () => {
+			mockUser.findOne.mockResolvedValue(null);
+			mockRole.findOne.mockResolvedValue({ id: 2 });
+			mockUser.create.mockRejectedValue(new UniqueConstraintError({}));
+			await expect(userService.createUser(req)).rejects.toMatchObject({
+				statusCode: 409,
+			});
+		});
+
 		it('throws 404 for an unknown role', async () => {
 			mockUser.findOne.mockResolvedValue(null);
 			mockRole.findOne.mockResolvedValue(null);
@@ -93,6 +103,26 @@ describe('user.service', () => {
 			const options = mockUser.findAndCountAll.mock.calls[0][0];
 			expect(options).toMatchObject({ offset: 5, limit: 5 });
 			expect(options.attributes).not.toContain('password');
+		});
+	});
+
+	describe('getUsers sortBy', () => {
+		it('keeps the default order without sortBy', async () => {
+			mockUser.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
+			await userService.getUsers({ query: {} });
+			expect(mockUser.findAndCountAll.mock.calls[0][0].order[0]).toEqual([
+				'name',
+				'ASC',
+			]);
+		});
+
+		it('orders by the requested field with an id tie-breaker', async () => {
+			mockUser.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
+			await userService.getUsers({ query: { sortBy: 'email:desc' } });
+			expect(mockUser.findAndCountAll.mock.calls[0][0].order).toEqual([
+				['email', 'DESC'],
+				['id', 'ASC'],
+			]);
 		});
 	});
 

@@ -110,7 +110,9 @@ export default router;
  *          name: sortBy
  *          schema:
  *            type: string
- *          description: sort by query in the form of field:desc/asc (ex. name:asc)
+ *            pattern: '^(id|name|description|created_date_time|modified_date_time):(asc|desc)$'
+ *            example: name:asc
+ *          description: Sort by one field, as field:asc or field:desc. Allowed fields are id, name, description, created_date_time and modified_date_time. Ties are broken by id ascending. Without it, roles are ordered by name asc, created_date_time desc, modified_date_time desc. An invalid value answers 400.
  *        - in: query
  *          name: limit
  *          schema:
