@@ -134,6 +134,15 @@ components:
                     example:
                         code: 404
                         message: Not found
+        EmailUnavailable:
+            description: The mail server could not be reached; no reset email was sent
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/Error'
+                    example:
+                        code: 503
+                        message: Email service unavailable
 
     securitySchemes:
         bearerAuth:

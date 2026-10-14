@@ -29,10 +29,27 @@ describe('email.service', () => {
 		expect(msg.text).toContain('reset-password?token=tok123');
 	});
 
-	it('propagates transport failures', async () => {
-		sendMail.mockRejectedValue(new Error('smtp down'));
-		await expect(emailService.sendEmail('a', 'b', 'c')).rejects.toThrow(
-			'smtp down'
+	it('converts transport failures into an operational 503', async () => {
+		sendMail.mockRejectedValue(
+			Object.assign(new Error('getaddrinfo ENOTFOUND email-server'), {
+				code: 'EDNS',
+			})
 		);
+		await expect(
+			emailService.sendEmail('a', 'b', 'c')
+		).rejects.toMatchObject({
+			statusCode: 503,
+			isOperational: true,
+			message: 'Email service unavailable',
+		});
+	});
+
+	it('does not leak the transport error or the token', async () => {
+		sendMail.mockRejectedValue(new Error('auth failed for secret-user'));
+		const error = await emailService
+			.sendResetPasswordEmail('a@b.co', 'tok123')
+			.catch((e) => e);
+		expect(error.message).toBe('Email service unavailable');
+		expect(error.message).not.toContain('tok123');
 	});
 });

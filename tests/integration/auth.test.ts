@@ -230,6 +230,28 @@ describe('Auth routes', () => {
 			expect(sendMail.mock.calls[0][0].text).toMatch(/token=[\w.-]+/);
 		});
 
+		it('returns 503, with no token in the response, when the mail transport fails', async () => {
+			const { user } = await createUser();
+			sendMail.mockRejectedValue(
+				Object.assign(new Error('getaddrinfo ENOTFOUND email-server'), {
+					code: 'EDNS',
+				})
+			);
+			const res = await request(app)
+				.post('/v1/auth/forgot-password')
+				.send({ email: user.email })
+				.expect(httpStatus.SERVICE_UNAVAILABLE);
+
+			expect(res.body).toEqual({
+				code: 503,
+				message: 'Email service unavailable',
+			});
+			// Reset tokens are stateless JWTs that only ever travel inside the
+			// email, so a failed send leaves nothing usable behind.
+			expect(JSON.stringify(res)).not.toMatch(/token=/);
+			expect(sendMail).toHaveBeenCalledTimes(1);
+		});
+
 		it('returns 404 for an unknown address', async () => {
 			await request(app)
 				.post('/v1/auth/forgot-password')
