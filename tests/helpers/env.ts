@@ -2,11 +2,11 @@
 const defaults = {
 	NODE_ENV: 'test',
 	JWT_SECRET: 'test-secret',
-	SQL_USERNAME: 'test',
-	SQL_PASSWORD: 'test',
-	SQL_HOST: '127.0.0.1',
-	SQL_PORT: '54329',
-	SQL_DATABASE_NAME: 'test',
+	DB_USERNAME: 'test',
+	DB_PASSWORD: 'test',
+	DB_HOST: '127.0.0.1',
+	DB_PORT: '54329',
+	DB_NAME: 'test',
 };
 
 // NODE_ENV is forced: a dev shell with NODE_ENV=development would enable stack traces.
@@ -16,8 +16,8 @@ Object.entries(defaults).forEach(([key, value]) => {
 });
 
 // Integration setup truncates tables, so never point it at a non-test database.
-if (!/test/i.test(process.env.SQL_DATABASE_NAME!)) {
+if (!/test/i.test(process.env.DB_NAME!)) {
 	throw new Error(
-		`Refusing to run tests against database "${process.env.SQL_DATABASE_NAME}"`
+		`Refusing to run tests against database "${process.env.DB_NAME}"`
 	);
 }

@@ -24,25 +24,25 @@ const envVarsSchema = Joi.object()
 			.default(24)
 			.description('hours after which httpOnly cookie expire'),
 
-		SQL_USERNAME: Joi.string().description('sqldb username'),
-		SQL_HOST: Joi.string().description('sqldb host'),
-		SQL_PORT: Joi.number().description('sqldb port'),
-		SQL_DATABASE_NAME: Joi.string().description('sqldb database name'),
-		SQL_PASSWORD: Joi.string().description('sqldb password'),
-		SQL_DIALECT: Joi.string()
+		DB_USERNAME: Joi.string().description('database username'),
+		DB_HOST: Joi.string().description('database host'),
+		DB_PORT: Joi.number().description('database port'),
+		DB_NAME: Joi.string().description('database database name'),
+		DB_PASSWORD: Joi.string().description('database password'),
+		DB_DIALECT: Joi.string()
 			.default('postgres')
-			.description('type of sqldb'),
-		SQL_MAX_POOL: Joi.number()
+			.description('type of database'),
+		DB_MAX_POOL: Joi.number()
 			.default(10)
 			.min(5)
-			.description('sqldb max pool connection'),
-		SQL_MIN_POOL: Joi.number()
+			.description('database max pool connection'),
+		DB_MIN_POOL: Joi.number()
 			.default(0)
 			.min(0)
-			.description('sqldb min pool connection'),
-		SQL_IDLE: Joi.number()
+			.description('database min pool connection'),
+		DB_IDLE: Joi.number()
 			.default(10000)
-			.description('sqldb max pool idle time in miliseconds'),
+			.description('database max pool idle time in miliseconds'),
 
 		SMTP_HOST: Joi.string().description('server that will send the emails'),
 		SMTP_PORT: Joi.number().description(
@@ -63,15 +63,15 @@ interface EnvVars {
 	JWT_ACCESS_EXPIRATION_MINUTES: number;
 	JWT_REFRESH_EXPIRATION_DAYS: number;
 	COOKIE_EXPIRATION_HOURS: number;
-	SQL_USERNAME?: string;
-	SQL_HOST?: string;
-	SQL_PORT?: number;
-	SQL_DATABASE_NAME?: string;
-	SQL_PASSWORD?: string;
-	SQL_DIALECT: Dialect;
-	SQL_MAX_POOL: number;
-	SQL_MIN_POOL: number;
-	SQL_IDLE: number;
+	DB_USERNAME?: string;
+	DB_HOST?: string;
+	DB_PORT?: number;
+	DB_NAME?: string;
+	DB_PASSWORD?: string;
+	DB_DIALECT: Dialect;
+	DB_MAX_POOL: number;
+	DB_MIN_POOL: number;
+	DB_IDLE: number;
 	SMTP_HOST?: string;
 	SMTP_PORT?: number;
 	SMTP_USERNAME?: string;
@@ -105,16 +105,16 @@ const config = {
 		cookieExpirationHours: envVars.COOKIE_EXPIRATION_HOURS,
 	},
 	sqlDB: {
-		user: envVars.SQL_USERNAME,
-		host: envVars.SQL_HOST,
-		port: envVars.SQL_PORT,
-		database: envVars.SQL_DATABASE_NAME,
-		password: envVars.SQL_PASSWORD,
-		dialect: envVars.SQL_DIALECT,
+		user: envVars.DB_USERNAME,
+		host: envVars.DB_HOST,
+		port: envVars.DB_PORT,
+		database: envVars.DB_NAME,
+		password: envVars.DB_PASSWORD,
+		dialect: envVars.DB_DIALECT,
 		pool: {
-			max: envVars.SQL_MAX_POOL,
-			min: envVars.SQL_MIN_POOL,
-			idle: envVars.SQL_IDLE,
+			max: envVars.DB_MAX_POOL,
+			min: envVars.DB_MIN_POOL,
+			idle: envVars.DB_IDLE,
 		},
 		define: {
 			/**

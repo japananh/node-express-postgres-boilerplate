@@ -40,7 +40,7 @@ yarn install
 cp .env.example .env
 ```
 
-Edit `.env` so the `SQL_*` values point at your database, then create the schema and demo data:
+Edit `.env` so the `DB_*` values point at your database, then create the schema and demo data:
 
 ```bash
 node_modules/.bin/sequelize db:migrate
@@ -78,7 +78,7 @@ yarn typecheck
 yarn lint
 ```
 
-`yarn test:coverage` writes a report to `coverage/`. Before each integration run the schema is rebuilt from the migrations, and before each test the tables are truncated and the seeders re-run. The suite refuses to run when `SQL_DATABASE_NAME` does not contain `test`. To use another Postgres, set `SQL_HOST`, `SQL_PORT`, `SQL_USERNAME`, `SQL_PASSWORD` and `SQL_DATABASE_NAME`; no `.env` file is needed. GitHub Actions runs typecheck, lint and the coverage run against a Postgres service (`.github/workflows/test.yml`).
+`yarn test:coverage` writes a report to `coverage/`. Before each integration run the schema is rebuilt from the migrations, and before each test the tables are truncated and the seeders re-run. The suite refuses to run when `DB_NAME` does not contain `test`. To use another Postgres, set `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD` and `DB_NAME`; no `.env` file is needed. GitHub Actions runs typecheck, lint and the coverage run against a Postgres service (`.github/workflows/test.yml`).
 
 ## Build and start
 
@@ -101,22 +101,22 @@ Read and validated in `src/config/config.ts`; the app throws at startup if valid
 | `JWT_ACCESS_EXPIRATION_MINUTES` | no | `30` | Access token lifetime |
 | `JWT_REFRESH_EXPIRATION_DAYS` | no | `30` | Refresh token lifetime |
 | `COOKIE_EXPIRATION_HOURS` | no | `24` | Lifetime of the httpOnly cookie |
-| `SQL_USERNAME` | no | none | Database user |
-| `SQL_HOST` | no | none | Database host |
-| `SQL_PORT` | no | none | Database port |
-| `SQL_DATABASE_NAME` | no | none | Database name |
-| `SQL_PASSWORD` | no | none | Database password |
-| `SQL_DIALECT` | no | `postgres` | Sequelize dialect |
-| `SQL_MAX_POOL` | no | `10` | Maximum pool connections (minimum 5) |
-| `SQL_MIN_POOL` | no | `0` | Minimum pool connections |
-| `SQL_IDLE` | no | `10000` | Pool idle time in milliseconds |
+| `DB_USERNAME` | no | none | Database user |
+| `DB_HOST` | no | none | Database host |
+| `DB_PORT` | no | none | Database port |
+| `DB_NAME` | no | none | Database name |
+| `DB_PASSWORD` | no | none | Database password |
+| `DB_DIALECT` | no | `postgres` | Sequelize dialect |
+| `DB_MAX_POOL` | no | `10` | Maximum pool connections (minimum 5) |
+| `DB_MIN_POOL` | no | `0` | Minimum pool connections |
+| `DB_IDLE` | no | `10000` | Pool idle time in milliseconds |
 | `SMTP_HOST` | no | none | Mail server for password-reset emails |
 | `SMTP_PORT` | no | none | Mail server port |
 | `SMTP_USERNAME` | no | none | Mail server user |
 | `SMTP_PASSWORD` | no | none | Mail server password |
 | `EMAIL_FROM` | no | none | From address of sent emails |
 
-The `SQL_*` variables are optional in the schema but needed to connect to a database. They are also read by `sequelize-cli`.
+The `DB_*` variables are optional in the schema but needed to connect to a database. They are also read by `sequelize-cli`.
 
 ## API endpoints
 
