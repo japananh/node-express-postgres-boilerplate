@@ -18,7 +18,7 @@ interface PageQuery {
 const createRole = catchAsync(
 	async (req: Request<Record<string, string>, unknown, RoleBody>, res) => {
 		const role = await roleService.createRole(req);
-		res.send({ role });
+		res.status(httpStatus.CREATED).send({ role });
 	}
 );
 

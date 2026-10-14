@@ -28,7 +28,7 @@ describe('Role routes', () => {
 				.post('/v1/roles')
 				.set('Authorization', bearer(admin.tokens))
 				.send({ name: 'editor', description: 'can edit' })
-				.expect(httpStatus.OK);
+				.expect(httpStatus.CREATED);
 
 			expect(res.body.role).toMatchObject({
 				name: 'editor',

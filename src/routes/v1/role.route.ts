@@ -82,7 +82,7 @@ export default router;
  *            application/json:
  *              schema:
  *                 $ref: '#/components/schemas/Role'
- *        "400":
+ *        "409":
  *          $ref: '#/components/responses/DuplicateRole'
  *        "401":
  *          $ref: '#/components/responses/Unauthorized'
@@ -213,7 +213,7 @@ export default router;
  *            application/json:
  *              schema:
  *                 $ref: '#/components/schemas/Role'
- *        "400":
+ *        "409":
  *          $ref: '#/components/responses/DuplicateRole'
  *        "401":
  *          $ref: '#/components/responses/Unauthorized'
