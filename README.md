@@ -250,10 +250,6 @@ This app uses pm2 in production mode, which is already configured to store the l
 
 Note: API request information (request url, response code, timestamp, etc.) are also automatically logged (using [morgan](https://github.com/expressjs/morgan)).
 
-## Inspirations
-
--   [hagopj13/node-express-boilerplate](https://github.com/hagopj13/node-express-boilerplate)
-
 ## License
 
 To be updated
