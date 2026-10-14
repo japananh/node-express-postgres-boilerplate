@@ -70,6 +70,10 @@ tests\
  |--helpers\        # Env defaults, DB setup, factories
 ```
 
+## Using with AI coding agents
+
+[AGENTS.md](AGENTS.md) holds the setup, verify commands, request flow, conventions and the steps for adding a resource. `CLAUDE.md` imports it, so Claude Code, Codex, Cursor and Copilot read the same file.
+
 ## API Documentation
 
 To view the list of available APIs and their specifications, run the server and go to `http://localhost:3000/v1/docs` in your browser. This documentation page is automatically generated using the [swagger](https://swagger.io/) definitions written as comments in the route files.
