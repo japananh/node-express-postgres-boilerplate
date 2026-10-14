@@ -3,7 +3,7 @@ import httpStatus from 'http-status';
 import app from '../../src/app';
 import * as emailService from '../../src/services/email.service';
 import { generateToken, generateExpires } from '../../src/utils/auth';
-import { resetDb, closeDb } from '../helpers/db';
+import { db, resetDb, closeDb } from '../helpers/db';
 import { ADMIN_ROLE_ID, USER_ROLE_ID, createUser } from '../helpers/factory';
 
 describe('Auth routes', () => {
@@ -27,7 +27,6 @@ describe('Auth routes', () => {
 			name: 'Jane',
 			email: 'jane@example.com',
 			password: 'password1',
-			roleId: USER_ROLE_ID,
 		});
 
 		it('creates the user and returns tokens without the password', async () => {
@@ -55,11 +54,50 @@ describe('Auth routes', () => {
 			expect(res.body.message).toBe('This email already exits');
 		});
 
-		it('returns 404 for an unknown role', async () => {
-			await request(app)
+		it.each([[ADMIN_ROLE_ID], [USER_ROLE_ID], [999]])(
+			'rejects a client-supplied roleId (%i) with 400 and creates no user',
+			async (roleId) => {
+				const res = await request(app)
+					.post('/v1/auth/register')
+					.send({ ...body(), roleId })
+					.expect(httpStatus.BAD_REQUEST);
+				expect(res.body.message).toBe('"roleId" is not allowed');
+				expect(
+					await db.user.count({ where: { email: body().email } })
+				).toBe(0);
+			}
+		);
+
+		it('always assigns the user role, looked up by name', async () => {
+			const res = await request(app)
 				.post('/v1/auth/register')
-				.send({ ...body(), roleId: 999 })
-				.expect(httpStatus.NOT_FOUND);
+				.send(body())
+				.expect(httpStatus.CREATED);
+
+			const stored = await db.user.findByPk(res.body.user.id);
+			const role = await db.role.findByPk(stored!.role_id);
+			expect(role!.name).toBe('user');
+			expect(stored!.role_id).not.toBe(ADMIN_ROLE_ID);
+		});
+
+		it('returns an operational 500 when the user role is missing', async () => {
+			await db.sequelize.query('TRUNCATE TABLE "user", "role" CASCADE');
+			const res = await request(app)
+				.post('/v1/auth/register')
+				.send(body())
+				.expect(httpStatus.INTERNAL_SERVER_ERROR);
+			expect(res.body.message).toMatch(/"user" is not seeded/);
+		});
+
+		it('gives a registered user no admin access', async () => {
+			const res = await request(app)
+				.post('/v1/auth/register')
+				.send(body())
+				.expect(httpStatus.CREATED);
+			await request(app)
+				.get('/v1/roles')
+				.set('Authorization', `Bearer ${res.body.tokens.access.token}`)
+				.expect(httpStatus.FORBIDDEN);
 		});
 
 		it.each([

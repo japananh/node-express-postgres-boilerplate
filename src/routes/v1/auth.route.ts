@@ -41,6 +41,7 @@ export default router;
  * /auth/register:
  *    post:
  *      summary: Register as user
+ *      description: Always creates a user with the `user` role. A `roleId` in the body is rejected with 400; only admins can pick a role, through `POST /users`.
  *      tags: [Auth]
  *      requestBody:
  *        required: true
@@ -52,7 +53,6 @@ export default router;
  *                - name
  *                - email
  *                - password
- *                - roleId
  *              properties:
  *                name:
  *                  type: string
@@ -65,14 +65,10 @@ export default router;
  *                  format: password
  *                  minLength: 8
  *                  description: At least one number and one letter
- *                roleId:
- *                  type: integer
- *                  description: id of an existing role (1 admin, 2 user in the default setup)
  *              example:
  *                name: fake name
  *                email: fake@example.com
  *                password: password1
- *                roleId: 2
  *      responses:
  *        "201":
  *          description: Created
@@ -83,8 +79,26 @@ export default router;
  *                properties:
  *                  user:
  *                    $ref: '#/components/schemas/User'
+ *        "400":
+ *          description: Invalid body, including an unknown key such as `roleId`
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Error'
+ *              example:
+ *                code: 400
+ *                message: '"roleId" is not allowed'
  *        "409":
  *          $ref: '#/components/responses/DuplicateEmail'
+ *        "500":
+ *          description: The default `user` role is not seeded
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Error'
+ *              example:
+ *                code: 500
+ *                message: Default role "user" is not seeded; run the database seeders
  */
 
 /**
