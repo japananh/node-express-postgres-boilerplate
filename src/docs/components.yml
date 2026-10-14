@@ -107,6 +107,15 @@ components:
                     example:
                         code: 409
                         message: This email already exits
+        DuplicateRole:
+            description: Role name already taken
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/Error'
+                    example:
+                        code: 409
+                        message: This role already exits
         Unauthorized:
             description: Unauthorized
             content:
