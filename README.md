@@ -1,268 +1,189 @@
-# Nodejs Express base API
+# Node Express Postgres Boilerplate
 
-This is a boilerplate application for building REST APIs in Node.js using TypeScript, Express and PostgreSQL.
+REST API template in TypeScript with Express, Sequelize and PostgreSQL. It ships JWT authentication, role-based access control, Joi validation, Swagger docs and a Jest test suite, for developers starting a new Node.js API.
 
-## Getting Started
+[![Test](https://github.com/japananh/node-express-postgres-boilerplate/actions/workflows/test.yml/badge.svg)](https://github.com/japananh/node-express-postgres-boilerplate/actions/workflows/test.yml)
+[![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](#license)
+[![Node 26](https://img.shields.io/badge/node-%3E%3D26-339933.svg)](.nvmrc)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6.svg)](tsconfig.json)
 
-### Installation
+## Contents
 
-1. Clone the repository with `https://github.com/japananh/node-express-postgres-boilerplate.git`
-2. Install the dependencies with `yarn install` (click here if [you don't have Yarn installed](https://yarnpkg.com/getting-started/install)
-3. Setup the database and the other settings in `.env` (see `.env.example`)
-4. Use Node 26 (`.nvmrc`), then `yarn dev` for development or `yarn build && yarn start` for the compiled app
+- [Use this template](#use-this-template)
+- [Run it locally](#run-it-locally)
+- [Test](#test)
+- [Build and start](#build-and-start)
+- [Environment variables](#environment-variables)
+- [API endpoints](#api-endpoints)
+- [Project structure](#project-structure)
+- [Database](#database)
+- [Using with AI coding agents](#using-with-ai-coding-agents)
+- [License](#license)
 
-### Scripts
+## Use this template
 
-This boilerplate comes with a collection of npm scripts to make your life easier, you'll run them with `npm run <script name>` or `yarn <script name>`:
-
--   `dev`: Run the application in development mode (`tsx watch`, restarts on change)
--   `build`: Compile `src/` to `dist/` with `tsc` and copy the Swagger YAML
--   `start`: Run the compiled app (`node dist/index.js`); run `build` first
--   `typecheck`: Type-check `src/` and `tests/` without emitting
--   `lint`: Run ESLint (`@typescript-eslint` + Airbnb + Prettier)
--   `lint:fix`: Fix ESLint errors
--   `prettier`: Check formatting with Prettier
--   `test`: Run unit and integration tests (needs Postgres, see [Testing](#testing))
--   `test:unit`: Run unit tests only (no database needed)
--   `test:integration`: Run integration tests only
--   `test:coverage`: Run all tests with a coverage report in `coverage/`
--   `test:db:up` / `test:db:down`: Start / remove the throwaway test Postgres
-
-## Testing
-
-Tests use [Jest](https://jestjs.io/) and [supertest](https://github.com/ladjs/supertest).
-
--   `tests/unit`: services, utils, middlewares and validations; the database is mocked.
--   `tests/integration`: auth, user and role routes against a real Postgres. Before each run the schema is rebuilt from the Sequelize migrations, and before each test the tables are truncated and the seeders re-run.
+Click **Use this template** at the top of the [repository page](https://github.com/japananh/node-express-postgres-boilerplate), or from the terminal:
 
 ```bash
-yarn test:db:up      # Postgres 16 in Docker on localhost:54329 (user/password/db: test)
-yarn test            # unit + integration
-yarn test:coverage   # same, with coverage
-yarn test:db:down    # remove the container and its data
+gh repo create my-api --template japananh/node-express-postgres-boilerplate --clone
+cd my-api
 ```
 
-The defaults in `tests/helpers/env.ts` match `docker-compose.yml`. To use another Postgres, set `SQL_HOST`, `SQL_PORT`, `SQL_USERNAME`, `SQL_PASSWORD` and `SQL_DATABASE_NAME`; the database name must contain `test`, because the suite truncates its tables. No `.env` file is needed. GitHub Actions runs lint and the full suite against a Postgres service (`.github/workflows/test.yml`).
+## Run it locally
 
-## Project Structure
+Requires Node 26 (`.nvmrc`), [Yarn 1](https://yarnpkg.com/getting-started/install) and a PostgreSQL server you run yourself. `docker-compose.yml` only provides the throwaway test database.
 
-```
-src\
- |--config\         # Environment variables and configuration related things
- |--controllers\    # Route controllers (controller layer)
- |--db\
-  |--config\        # Configuration for database
-  |--migrations\    # Database migrations (plain JS, run by sequelize-cli)
-  |--models\        # Typed Sequelize models
-  |--seeders\       # Seeders (plain JS, run by sequelize-cli)
- |--docs\           # Swagger files
- |--middlewares\    # Custom express middlewares
- |--routes\         # Routes
- |--services\       # Business logic (service layer)
- |--utils\          # Utility classes and functions
- |--validations\    # Request data validation schemas
- |--types\          # Type declarations (Express request augmentation)
- |--app.ts          # Express app
- |--index.ts        # App entry point
-tests\
- |--unit\           # Unit tests (mocked database)
- |--integration\    # Route tests against a real Postgres
- |--helpers\        # Env defaults, DB setup, factories
+Install and configure:
+
+```bash
+yarn install
+cp .env.example .env
 ```
 
-## Using with AI coding agents
+Edit `.env` so the `SQL_*` values point at your database, then create the schema and demo data:
 
-[AGENTS.md](AGENTS.md) holds the setup, verify commands, request flow, conventions and the steps for adding a resource. `CLAUDE.md` imports it, so Claude Code, Codex, Cursor and Copilot read the same file.
+```bash
+node_modules/.bin/sequelize db:migrate
+node_modules/.bin/sequelize db:seed:all
+```
 
-## API Documentation
+Start the dev server (restarts on change):
 
-To view the list of available APIs and their specifications, run the server and go to `http://localhost:3000/v1/docs` in your browser. This documentation page is automatically generated using the [swagger](https://swagger.io/) definitions written as comments in the route files.
+```bash
+yarn dev
+```
 
-### API Endpoints
+The API listens on `http://localhost:3000`. Swagger UI is at `http://localhost:3000/v1/docs`.
 
-List of available routes:
+## Test
 
-**Auth routes**:\
-`POST /v1/auth/register` - register\
-`POST /v1/auth/login` - login\
-`POST /v1/auth/refresh-tokens` - refresh auth tokens\
-`POST /v1/auth/forgot-password` - forgot-password\
-`POST /v1/auth/reset-password` - reset-password
+Unit tests need no database:
 
-**User routes**:\
-`POST /v1/users` - create a user\
-`GET /v1/users` - get all users\
-`GET /v1/users/:userId` - get user\
-`PATCH /v1/users/:userId` - update user\
-`DELETE /v1/users/:userId` - delete user
+```bash
+yarn test:unit
+```
 
-**Role routes**:\
-`POST /v1/roles` - create a role\
-`GET /v1/roles` - get all roles\
-`GET /v1/roles/:roleId` - get a role\
-`PATCH /v1/roles/:roleId` - update a role\
-`DELETE /v1/roles/:roleId` - delete a role
+The full suite needs the test Postgres (Docker, `localhost:54329`, user, password and database all `test`):
+
+```bash
+yarn test:db:up
+yarn test
+yarn test:db:down
+```
+
+Static checks:
+
+```bash
+yarn typecheck
+yarn lint
+```
+
+`yarn test:coverage` writes a report to `coverage/`. Before each integration run the schema is rebuilt from the migrations, and before each test the tables are truncated and the seeders re-run. The suite refuses to run when `SQL_DATABASE_NAME` does not contain `test`. To use another Postgres, set `SQL_HOST`, `SQL_PORT`, `SQL_USERNAME`, `SQL_PASSWORD` and `SQL_DATABASE_NAME`; no `.env` file is needed. GitHub Actions runs typecheck, lint and the coverage run against a Postgres service (`.github/workflows/test.yml`).
+
+## Build and start
+
+```bash
+yarn build
+yarn start
+```
+
+`build` compiles `src/` to `dist/` with `tsc` and copies the Swagger YAML; `start` runs `node dist/index.js`.
+
+## Environment variables
+
+Read and validated in `src/config/config.ts`; the app throws at startup if validation fails. Template: `.env.example`.
+
+| Name | Required | Default | Description |
+|---|---|---|---|
+| `NODE_ENV` | yes | none | `development`, `production` or `test` |
+| `PORT` | no | `3000` | HTTP port |
+| `JWT_SECRET` | yes | none | Secret used to sign tokens |
+| `JWT_ACCESS_EXPIRATION_MINUTES` | no | `30` | Access token lifetime |
+| `JWT_REFRESH_EXPIRATION_DAYS` | no | `30` | Refresh token lifetime |
+| `COOKIE_EXPIRATION_HOURS` | no | `24` | Lifetime of the httpOnly cookie |
+| `SQL_USERNAME` | no | none | Database user |
+| `SQL_HOST` | no | none | Database host |
+| `SQL_PORT` | no | none | Database port |
+| `SQL_DATABASE_NAME` | no | none | Database name |
+| `SQL_PASSWORD` | no | none | Database password |
+| `SQL_DIALECT` | no | `postgres` | Sequelize dialect |
+| `SQL_MAX_POOL` | no | `10` | Maximum pool connections (minimum 5) |
+| `SQL_MIN_POOL` | no | `0` | Minimum pool connections |
+| `SQL_IDLE` | no | `10000` | Pool idle time in milliseconds |
+| `SMTP_HOST` | no | none | Mail server for password-reset emails |
+| `SMTP_PORT` | no | none | Mail server port |
+| `SMTP_USERNAME` | no | none | Mail server user |
+| `SMTP_PASSWORD` | no | none | Mail server password |
+| `EMAIL_FROM` | no | none | From address of sent emails |
+
+The `SQL_*` variables are optional in the schema but needed to connect to a database. They are also read by `sequelize-cli`.
+
+## API endpoints
+
+All routes are under `/v1`. Send `Authorization: Bearer <access token>` on protected routes. Full request and response schemas are in Swagger UI at `/v1/docs`.
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| POST | `/v1/auth/register` | public | Register a user |
+| POST | `/v1/auth/login` | public | Log in |
+| POST | `/v1/auth/refresh-tokens` | public | Refresh auth tokens |
+| POST | `/v1/auth/forgot-password` | public | Send a password-reset email |
+| POST | `/v1/auth/reset-password` | public | Reset the password |
+| POST | `/v1/users` | admin | Create a user |
+| GET | `/v1/users` | admin | List users |
+| GET | `/v1/users/:userId` | admin, or the user themself | Get a user |
+| PATCH | `/v1/users/:userId` | admin, or the user themself | Update a user |
+| DELETE | `/v1/users/:userId` | admin, or the user themself | Delete a user |
+| POST | `/v1/roles` | admin | Create a role |
+| GET | `/v1/roles` | admin | List roles |
+| GET | `/v1/roles/:roleId` | admin | Get a role |
+| PATCH | `/v1/roles/:roleId` | admin | Update a role |
+| DELETE | `/v1/roles/:roleId` | admin | Delete a role |
+
+Roles and their permissions are defined in `src/config/roles.ts` (role id 1 is admin, 2 is user). List endpoints accept `page`, `limit` and `sortBy` (`field:asc` or `field:desc`).
+
+## Project structure
+
+```text
+src/
+  config/        validated env, JWT, logger, RBAC grants
+  controllers/   HTTP handlers
+  db/
+    config/      sequelize-cli connection (JS)
+    migrations/  schema migrations (JS)
+    models/      typed Sequelize models
+    seeders/     demo data (JS)
+  docs/          Swagger definition and shared components
+  middlewares/   validate, access control, errors, rate limiter
+  routes/v1/     routers and Swagger JSDoc
+  services/      business logic
+  types/         Express request augmentation
+  utils/         ApiError, catchAsync, pagination helpers
+  validations/   Joi schemas
+  app.ts         Express app
+  index.ts       entry point
+tests/
+  unit/          database mocked
+  integration/   routes against a real Postgres
+  helpers/       env defaults, DB setup, factories
+```
 
 ## Database
 
-This app uses [Sequelize](https://sequelize.org/) - an **Object-Relational Mapper** to maps object syntax into Postgres database, and [Sequelize CLI](https://github.com/sequelize/cli) package to manage sequelize.
-
-There are 2 ways to run `sequelize-cli`.
+[Sequelize](https://sequelize.org/) maps models to Postgres, and [sequelize-cli](https://github.com/sequelize/cli) runs migrations and seeders:
 
 ```bash
-# Method 1: Use sequelize global
-npm install -g sequelize-cli
-
-sequelize db:migrate
-
-# Method 2
 node_modules/.bin/sequelize db:migrate
+node_modules/.bin/sequelize db:migrate:undo
+node_modules/.bin/sequelize db:seed:all
 ```
 
-Migrations and seeders stay plain JavaScript because `sequelize-cli` cannot load TypeScript. For the same reason `src/db/config/database.js` reads the `SQL_*` variables itself instead of importing `src/config/config.ts`.
+Migrations and seeders stay plain JavaScript because `sequelize-cli` cannot load TypeScript.
 
-## Error Handling
+## Using with AI coding agents
 
-The app has a centralized error handling mechanism.
-
-Controllers should try to catch the errors and forward them to the error handling middleware (by calling `next(error)`). For convenience, you can also wrap the controller inside the catchAsync utility wrapper, which forwards the error.
-
-```javascript
-import catchAsync from '../utils/catchAsync';
-
-const controller = catchAsync(async (req, res) => {
-	// this error will be forwarded to the error handling middleware
-	throw new Error('Something wrong happened');
-});
-```
-
-The error handling middleware sends an error response, which has the following format:
-
-```json
-{
-	"code": 404,
-	"message": "Not found"
-}
-```
-
-When running in development mode, the error response also contains the error stack.
-
-The app has a utility ApiError class to which you can attach a response code and a message, and then throw it from anywhere (catchAsync will catch it).
-
-For example, if you are trying to get a user from the DB who is not found, and you want to send a 404 error, the code should look something like:
-
-```typescript
-// user.controller.ts
-import httpStatus from 'http-status';
-import ApiError from '../utils/ApiError';
-
-const getUser = catchAsync(async (req, res) => {
-	const user = await userService.getUserById(req.params.userId);
-
-	if (!user) {
-		throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-	}
-
-	res.send({ user });
-});
-```
-
-## Validation
-
-Request data is validated using [Joi](https://hapi.dev/family/joi/). Check the [documentation](https://hapi.dev/family/joi/api/) for more details on how to write Joi validation schemas.
-
-The validation schemas are defined in the `src/validations` directory and are used in the routes by providing them as parameters to the `validate` middleware.
-
-```typescript
-import express from 'express';
-import validate from '../../middlewares/validate';
-import * as userValidation from '../../validations/user.validation';
-import * as userController from '../../controllers/user.controller';
-
-const router = express.Router();
-
-router.post(
-	'/users',
-	validate(userValidation.createUser),
-	userController.createUser
-);
-```
-
-## Authentication
-
-To require authentication for certain routes, you can use `jwt` function at `config` folder
-
-```typescript
-// app.ts
-import jwt from './config/jwt';
-
-app.use(jwt());
-```
-
-These routes require a valid JWT access token in the Authorization request header using the Bearer schema. If the request does not contain a valid access token, an Unauthorized (401) error is thrown.
-
-## Authorization
-
-The `auth` middleware is used to require certain rights/permissions to access a route.
-
-```typescript
-import express from 'express';
-import { grantAccess } from '../../middlewares/validateAccessControl';
-import validate from '../../middlewares/validate';
-import * as userValidation from '../../validations/user.validation';
-import * as userController from '../../controllers/user.controller';
-
-const router = express.Router();
-
-router
-	.route('/')
-	.get(
-		grantAccess('readAny', 'user'),
-		validate(userValidation.getUsers),
-		userController.getUsers
-	);
-```
-
-In the example above, an authenticated user can access this route only if that user has the `getUsers` permission.
-
-The permissions are role-based. You can view the permissions/rights of each role in the `src/config/roles.ts` file.
-
-If the user making the request does not have the required permissions to access this route, a Forbidden (403) error is thrown.
-
-## Logging
-
-Import the logger from `src/config/logger.ts`. It is using the [Winston](https://github.com/winstonjs/winston) logging library.
-
-Logging should be done according to the following severity levels (ascending order from most important to least important):
-
-```typescript
-import logger from '<path to src>/config/logger';
-
-logger.error('message'); // level 0
-logger.warn('message'); // level 1
-logger.info('message'); // level 2
-logger.http('message'); // level 3
-logger.verbose('message'); // level 4
-logger.debug('message'); // level 5
-```
-
-In development mode, log messages of all severity levels will be printed to the console.
-
-In production mode, only `info`, `warn`, and `error` logs will be printed to the console.\
-It is up to the server (or process manager) to actually read them from the console and store them in log files.\
-This app uses pm2 in production mode, which is already configured to store the logs in log files.
-
-Note: API request information (request url, response code, timestamp, etc.) are also automatically logged (using [morgan](https://github.com/expressjs/morgan)).
+[AGENTS.md](AGENTS.md) holds the setup and verify commands, request flow, conventions and the steps for adding a resource. `CLAUDE.md` imports it, so Claude Code, Codex, Cursor and Copilot read the same file.
 
 ## License
 
-To be updated
-
-## TODOs
-
--   [x] Update authentication flow to use refreshToken
--   [x] Rewrite README using this sample [template](https://github.com/talyssonoc/node-api-boilerplate)
--   [x] Handle postgres with [Squelize](https://www.npmjs.com/package/sequelize)
--   [x] Update CHANGELOG
--   [x] Add test
--   [x] Refactor code use Typescript
+ISC, as declared in `package.json`. The repository has no `LICENSE` file.
