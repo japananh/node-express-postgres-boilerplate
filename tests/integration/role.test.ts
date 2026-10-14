@@ -2,12 +2,7 @@ import request from 'supertest';
 import httpStatus from 'http-status';
 import app from '../../src/app';
 import { resetDb, closeDb } from '../helpers/db';
-import {
-	ADMIN_ROLE_ID,
-	ensureUserRole,
-	createUser,
-	bearer,
-} from '../helpers/factory';
+import { ADMIN_ROLE_ID, createUser, bearer } from '../helpers/factory';
 
 type Account = Awaited<ReturnType<typeof createUser>>;
 
@@ -17,7 +12,6 @@ describe('Role routes', () => {
 
 	beforeEach(async () => {
 		await resetDb();
-		await ensureUserRole();
 		admin = await createUser({ roleId: ADMIN_ROLE_ID });
 		regular = await createUser();
 	});

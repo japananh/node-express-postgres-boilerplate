@@ -6,14 +6,16 @@ import {
 	UniqueConstraintError,
 } from 'sequelize';
 import { db, resetDb, closeDb } from '../helpers/db';
-import { createUser, ensureUserRole } from '../helpers/factory';
+import { createUser } from '../helpers/factory';
+
+/* eslint-disable-next-line @typescript-eslint/no-var-requires */
+const roleSeeder = require('../../src/db/seeders/20210227143959-demo-role');
 
 const root = path.resolve(__dirname, '../..');
 
 describe('database constraints', () => {
 	beforeEach(async () => {
 		await resetDb();
-		await ensureUserRole();
 	});
 
 	afterAll(closeDb);
@@ -46,6 +48,32 @@ describe('database constraints', () => {
 			'role_name_key',
 			'user_role_id_fkey',
 		]);
+	});
+
+	describe('role seeder', () => {
+		it('seeds admin as id 1 and user as id 2', async () => {
+			const roles = await db.role.findAll({ order: [['id', 'ASC']] });
+			expect(roles.map((r) => [r.id, r.name])).toEqual([
+				[1, 'admin'],
+				[2, 'user'],
+			]);
+		});
+
+		it('leaves the id sequence past the seeded ids', async () => {
+			const role = await db.role.create({
+				name: 'editor',
+				description: null,
+			});
+			expect(role.id).toBe(3);
+		});
+
+		it('down removes both seeded roles', async () => {
+			await db.user.destroy({ where: {} });
+			await db.role.create({ name: 'editor', description: null });
+			await roleSeeder.down(db.sequelize.getQueryInterface());
+			const names = (await db.role.findAll()).map((r) => r.name);
+			expect(names).toEqual(['editor']);
+		});
 	});
 
 	// db:seed:all runs seeders alphabetically; the user needs its role first.

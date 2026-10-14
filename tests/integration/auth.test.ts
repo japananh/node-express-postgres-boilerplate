@@ -4,19 +4,13 @@ import app from '../../src/app';
 import * as emailService from '../../src/services/email.service';
 import { generateToken, generateExpires } from '../../src/utils/auth';
 import { resetDb, closeDb } from '../helpers/db';
-import {
-	ADMIN_ROLE_ID,
-	USER_ROLE_ID,
-	ensureUserRole,
-	createUser,
-} from '../helpers/factory';
+import { ADMIN_ROLE_ID, USER_ROLE_ID, createUser } from '../helpers/factory';
 
 describe('Auth routes', () => {
 	let sendMail: jest.SpyInstance;
 
 	beforeEach(async () => {
 		await resetDb();
-		await ensureUserRole();
 		sendMail = jest
 			.spyOn(emailService.transport, 'sendMail')
 			.mockResolvedValue({} as never);
