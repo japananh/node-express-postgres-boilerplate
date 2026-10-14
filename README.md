@@ -3,7 +3,7 @@
 REST API template in TypeScript with Express, Sequelize and PostgreSQL. It ships JWT authentication, role-based access control, Joi validation, Swagger docs and a Jest test suite, for developers starting a new Node.js API.
 
 [![Test](https://github.com/japananh/node-express-postgres-boilerplate/actions/workflows/test.yml/badge.svg)](https://github.com/japananh/node-express-postgres-boilerplate/actions/workflows/test.yml)
-[![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](#license)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Node 26](https://img.shields.io/badge/node-%3E%3D26-339933.svg)](.nvmrc)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6.svg)](tsconfig.json)
 
@@ -186,4 +186,4 @@ Migrations and seeders stay plain JavaScript because `sequelize-cli` cannot load
 
 ## License
 
-ISC, as declared in `package.json`. The repository has no `LICENSE` file.
+MIT. See [LICENSE](LICENSE).
