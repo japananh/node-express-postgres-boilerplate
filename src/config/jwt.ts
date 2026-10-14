@@ -18,8 +18,8 @@ function jwt() {
 		requestProperty: 'user',
 	}).unless({
 		path: [
-			// public routes that don't require authentication
-			/\/v[1-9](\d)*\/(auth|docs)\/.*/,
+			// Public routes. The trailing part is optional so `/v1/docs` (no slash) is public too.
+			/^\/v[1-9]\d*\/(auth|docs)(\/.*)?$/,
 		],
 	});
 }
