@@ -32,6 +32,9 @@ type UpdateBody = Partial<Pick<UserBody, 'email' | 'name' | 'password'>> & {
 	id?: number;
 };
 
+// config/roles.ts grants by role id, so this role must be seeded as id 2.
+const DEFAULT_ROLE_NAME = 'user';
+
 const roleInclude = {
 	model: Role,
 	attributes: ['id', 'name'],
@@ -92,6 +95,23 @@ async function createUser(req: { body: UserBody }) {
 	return createdUser as Omit<typeof createdUser, 'password'> & {
 		password?: string;
 	};
+}
+
+/**
+ * Public self-registration: the role is never caller-chosen.
+ */
+async function registerUser(req: { body: Omit<UserBody, 'roleId'> }) {
+	const { email, name, password } = req.body;
+	const role = await roleService.getRoleByName(DEFAULT_ROLE_NAME);
+
+	if (!role) {
+		throw new ApiError(
+			httpStatus.INTERNAL_SERVER_ERROR,
+			`Default role "${DEFAULT_ROLE_NAME}" is not seeded; run the database seeders`
+		);
+	}
+
+	return createUser({ body: { email, name, password, roleId: role.id } });
 }
 
 async function getUsers(req: { query: PageQuery }) {
@@ -178,9 +198,11 @@ async function updateUser(req: {
 }
 
 export {
+	DEFAULT_ROLE_NAME,
 	getUserByEmail,
 	getUserById,
 	createUser,
+	registerUser,
 	updateUser,
 	getUsers,
 	deleteUserById,

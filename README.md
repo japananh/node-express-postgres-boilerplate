@@ -124,12 +124,12 @@ All routes are under `/v1`. Send `Authorization: Bearer <access token>` on prote
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| POST | `/v1/auth/register` | public | Register a user |
+| POST | `/v1/auth/register` | public | Register a user (always gets the `user` role) |
 | POST | `/v1/auth/login` | public | Log in |
 | POST | `/v1/auth/refresh-tokens` | public | Refresh auth tokens |
 | POST | `/v1/auth/forgot-password` | public | Send a password-reset email |
 | POST | `/v1/auth/reset-password` | public | Reset the password |
-| POST | `/v1/users` | admin | Create a user |
+| POST | `/v1/users` | admin | Create a user with any role (`roleId`) |
 | GET | `/v1/users` | admin | List users |
 | GET | `/v1/users/:userId` | admin, or the user themself | Get a user |
 | PATCH | `/v1/users/:userId` | admin, or the user themself | Update a user |
@@ -140,7 +140,7 @@ All routes are under `/v1`. Send `Authorization: Bearer <access token>` on prote
 | PATCH | `/v1/roles/:roleId` | admin | Update a role |
 | DELETE | `/v1/roles/:roleId` | admin | Delete a role |
 
-Roles and their permissions are defined in `src/config/roles.ts` (role id 1 is admin, 2 is user). List endpoints accept `page`, `limit` and `sortBy` (`field:asc` or `field:desc`).
+Roles and their permissions are defined in `src/config/roles.ts` (role id 1 is admin, 2 is user). Public registration never accepts a role: a `roleId` in the body is rejected with 400 and the new account gets the role named `user`, so the seeders must have run (otherwise registration fails with a 500 that says so). Only an admin can assign another role, through `POST /v1/users`. List endpoints accept `page`, `limit` and `sortBy` (`field:asc` or `field:desc`).
 
 ## Project structure
 

@@ -14,7 +14,6 @@ interface RegisterBody {
 	email: string;
 	name: string;
 	password: string;
-	roleId: number;
 }
 
 const register = catchAsync(
@@ -22,7 +21,10 @@ const register = catchAsync(
 		req: Request<Record<string, string>, unknown, RegisterBody>,
 		res
 	) => {
-		const user = await userService.createUser(req);
+		const { email, name, password } = req.body;
+		const user = await userService.registerUser({
+			body: { email, name, password },
+		});
 		const tokens = await tokenService.generateAuthTokens({
 			userId: user.id,
 			roleId: user.role_id,

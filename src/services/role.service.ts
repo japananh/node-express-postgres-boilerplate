@@ -120,4 +120,11 @@ async function deleteRoleById(roleId: number | string) {
 	return deletedRole;
 }
 
-export { getRoleById, getRoles, createRole, updateRole, deleteRoleById };
+export {
+	getRoleById,
+	getRoleByName,
+	getRoles,
+	createRole,
+	updateRole,
+	deleteRoleById,
+};

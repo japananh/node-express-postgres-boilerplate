@@ -96,6 +96,39 @@ describe('user.service', () => {
 		});
 	});
 
+	describe('registerUser', () => {
+		const req = {
+			body: { email: 'a@b.co', name: 'A', password: 'password1' },
+		};
+
+		it('assigns the role looked up by name', async () => {
+			mockUser.findOne.mockResolvedValue(null);
+			// Same mock serves both lookups; id 7 proves the id is not hard-coded.
+			mockRole.findOne.mockResolvedValue({ id: 7 });
+			mockUser.create.mockImplementation(async (data) => ({
+				get: () => ({ id: 1, ...data }),
+			}));
+
+			const user = await userService.registerUser(req);
+
+			expect(mockRole.findOne.mock.calls[0][0]).toMatchObject({
+				where: { name: 'user' },
+			});
+			expect(user.role_id).toBe(7);
+		});
+
+		it('fails with an operational error when the role is not seeded', async () => {
+			mockUser.findOne.mockResolvedValue(null);
+			mockRole.findOne.mockResolvedValue(null);
+			await expect(userService.registerUser(req)).rejects.toMatchObject({
+				statusCode: 500,
+				isOperational: true,
+				message: expect.stringContaining('"user" is not seeded'),
+			});
+			expect(mockUser.create).not.toHaveBeenCalled();
+		});
+	});
+
 	describe('getUsers', () => {
 		it('paginates and never selects the password', async () => {
 			mockUser.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });

@@ -92,6 +92,15 @@ describe('User routes', () => {
 				.expect(httpStatus.OK);
 		});
 
+		it('lets an admin pick the admin role', async () => {
+			const res = await request(app)
+				.post('/v1/users')
+				.set('Authorization', bearer(admin.tokens))
+				.send({ ...body(), roleId: 1 })
+				.expect(httpStatus.CREATED);
+			expect(res.body.user.role_id).toBe(1);
+		});
+
 		it('returns 409 for a duplicate email', async () => {
 			await request(app)
 				.post('/v1/users')
